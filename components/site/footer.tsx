@@ -1,36 +1,136 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
   return (
-    <footer className="mt-24 border-t border-teal-darker/10 bg-teal-darker">
-      <div className="mx-auto max-w-6xl px-6 py-14">
-        <div className="grid gap-10 md:grid-cols-3">
-          <div>
-            <p className="font-serif text-lg font-bold text-white">Smile Center GH</p>
-            <p className="mt-2 max-w-xs text-sm text-teal-light/80 text-white/70">
-              Leading provider of cosmetic and preventive dental care, with 4 branches
-              across Accra.
+    <footer className="mt-24 bg-[#000a54] text-white">
+      <div className="mx-auto max-w-6xl px-6 py-16">
+        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3">
+
+          {/* Brand column */}
+          <div className="space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="relative h-14 w-14 overflow-hidden rounded-2xl shadow-lg shadow-black/30 border border-white/10">
+                <Image
+                  src="/logo.svg"
+                  alt="Smile Center GH logo"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div>
+                <p className="font-serif text-xl font-bold text-white leading-tight">
+                  Smile Center <span className="text-amber-400">GH.</span>
+                </p>
+                <p className="text-[10px] uppercase tracking-widest text-white/50 mt-0.5">
+                  Dental care in Accra
+                </p>
+              </div>
+            </div>
+            <p className="max-w-xs text-sm leading-relaxed text-white/60">
+              Accra&apos;s leading provider of laser teeth whitening, cosmetic and preventive dental care. Combining world-class expertise with modern convenience.
             </p>
           </div>
-          <div>
-            <p className="text-sm font-semibold text-gold">Quick Links</p>
-            <ul className="mt-3 space-y-2 text-sm text-white/70">
-              <li><Link href="/services" className="hover:text-white">Services</Link></li>
-              <li><Link href="/branches" className="hover:text-white">Branches</Link></li>
-              <li><Link href="/book" className="hover:text-white">Book Appointment</Link></li>
+
+          {/* Quick Links */}
+          <div className="space-y-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-amber-400">Quick Links</p>
+            <ul className="space-y-2.5 text-sm">
+              <li>
+                <Link href="/services" className="text-white/70 transition hover:text-white hover:underline">
+                  Services
+                </Link>
+              </li>
+              <li>
+                <Link href="/branches" className="text-white/70 transition hover:text-white hover:underline">
+                  Branches
+                </Link>
+              </li>
+              <li>
+                <Link href="/membership" className="text-white/70 transition hover:text-white hover:underline">
+                  Membership (Smile Club)
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="text-white/70 transition hover:text-white hover:underline">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-white/70 transition hover:text-white hover:underline">
+                  Contact &amp; Support
+                </Link>
+              </li>
+              <li>
+                <Link href="/book" className="text-white/70 transition hover:text-white hover:underline font-medium">
+                  Book Appointment
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin/login" className="text-white/40 transition hover:text-white hover:underline text-xs">
+                  Admin Sign In
+                </Link>
+              </li>
             </ul>
           </div>
-          <div>
-            <p className="text-sm font-semibold text-gold">Contact</p>
-            <ul className="mt-3 space-y-2 text-sm text-white/70">
-              <li>smilecentergh@hotmail.com</li>
-              <li>smilecentergh.com</li>
-              <li>+233 24 000 0000</li>
+
+          {/* Get In Touch */}
+          <div className="space-y-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-amber-400">Get In Touch</p>
+            <ul className="space-y-3 text-sm">
+              <li className="flex flex-col">
+                <span className="text-xs uppercase tracking-wide text-white/50 mb-0.5">Email</span>
+                <a
+                  href="mailto:smilecentergh@hotmail.com"
+                  className="text-white/80 hover:text-white transition hover:underline"
+                >
+                  smilecentergh@hotmail.com
+                </a>
+              </li>
+              <li className="flex flex-col">
+                <span className="text-xs uppercase tracking-wide text-white/50 mb-0.5">Website</span>
+                <a
+                  href="https://smilecentergh.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/80 hover:text-white transition hover:underline"
+                >
+                  smilecentergh.com
+                </a>
+              </li>
+              <li className="flex flex-col">
+                <span className="text-xs uppercase tracking-wide text-white/50 mb-0.5">Phone / WhatsApp</span>
+                <a
+                  href="tel:+233240000000"
+                  className="text-white/80 hover:text-white transition hover:underline"
+                >
+                  +233 24 000 0000
+                </a>
+              </li>
+              <li className="flex flex-col">
+                <span className="text-xs uppercase tracking-wide text-white/50 mb-0.5">Hours</span>
+                <span className="text-white/80">Mon – Sat · 8:00 AM – 6:00 PM</span>
+              </li>
             </ul>
           </div>
         </div>
-        <div className="mt-10 border-t border-white/10 pt-6 text-xs text-white/50">
-          © {new Date().getFullYear()} Smile Center GH. All rights reserved.
+
+        {/* Bottom bar */}
+        <div className="mt-12 border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/70">
+          <div className="flex flex-col sm:flex-row items-center gap-2">
+            <p className="text-white/90">© {new Date().getFullYear()} Smile Center GH. All rights reserved.</p>
+            <span className="hidden sm:inline text-white/40">·</span>
+            <p className="text-white/60">
+              Powered by{" "}
+              <span className="text-white/80 font-semibold tracking-wide">
+                Mavros Black™
+              </span>
+            </p>
+          </div>
+          <div className="flex gap-4">
+            <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white transition">Terms of Service</Link>
+          </div>
         </div>
       </div>
     </footer>

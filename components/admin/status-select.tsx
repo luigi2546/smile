@@ -5,15 +5,18 @@ import type { AppointmentStatus } from "@/lib/types";
 
 export function StatusSelect({
   action,
+  appointmentId,
   defaultValue,
   options,
 }: {
-  action: (formData: FormData) => void;
+  action: (formData: FormData) => Promise<void> | void;
+  appointmentId: string;
   defaultValue: AppointmentStatus;
   options: AppointmentStatus[];
 }) {
   return (
     <form action={action}>
+      <input type="hidden" name="id" value={appointmentId} />
       <select
         name="status"
         defaultValue={defaultValue}

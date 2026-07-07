@@ -46,7 +46,11 @@ create table if not exists customers (
 create unique index if not exists customers_phone_key on customers (phone);
 
 -- ---------- APPOINTMENTS ----------
-create type appointment_status as enum ('pending', 'confirmed', 'completed', 'cancelled', 'no_show');
+do $$ begin
+  create type appointment_status as enum ('pending', 'confirmed', 'completed', 'cancelled', 'no_show');
+exception when duplicate_object then null;
+end $$;
+
 
 create table if not exists appointments (
   id uuid primary key default uuid_generate_v4(),
@@ -66,7 +70,11 @@ create index if not exists appointments_customer_idx on appointments (customer_i
 create index if not exists appointments_branch_idx on appointments (branch_id);
 
 -- ---------- REMINDERS ----------
-create type reminder_type as enum ('follow_up', 'recall_cleaning', 'birthday', 'membership_renewal', 'custom');
+do $$ begin
+  create type reminder_type as enum ('follow_up', 'recall_cleaning', 'birthday', 'membership_renewal', 'custom');
+exception when duplicate_object then null;
+end $$;
+
 
 create table if not exists reminders (
   id uuid primary key default uuid_generate_v4(),
@@ -146,3 +154,96 @@ create policy "staff full access reminders" on reminders
 
 create policy "staff can view own profile" on staff_profiles
   for select using (auth.uid() = id or auth.uid() in (select id from staff_profiles where role = 'admin'));
+
+-- ---------- STITCH RENDERS ----------
+create table if not exists stitch_renders (
+  id uuid primary key default uuid_generate_v4(),
+  staff_id uuid references auth.users(id) on delete set null,
+  template_id text,
+  storage_url text,
+  preview_url text,
+  meta jsonb,
+  created_at timestamptz not null default now()
+);
+
+alter table stitch_renders enable row level security;
+create policy "staff can manage stitch renders" on stitch_renders
+  for all using (auth.uid() in (select id from staff_profiles));
+
+-- ============================================================
+-- SUBSCRIPTION PLANS & MEMBERSHIPS
+-- ============================================================
+
+-- ---------- SUBSCRIPTION PLANS ----------
+create table if not exists subscription_plans (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  description text,
+  price_ghs numeric(10, 2) not null default 0,
+  features jsonb default '[]'::jsonb,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+-- ---------- SUBSCRIPTIONS ----------
+do $$ begin
+  create type subscription_status as enum ('active', 'paused', 'cancelled', 'expired');
+exception when duplicate_object then null;
+end $$;
+
+create table if not exists subscriptions (
+  id uuid primary key default uuid_generate_v4(),
+  customer_id uuid not null references customers(id) on delete cascade,
+  plan_id uuid not null references subscription_plans(id) on delete restrict,
+  status subscription_status not null default 'active',
+  started_at date not null default current_date,
+  renews_at date not null,
+  cancelled_at date,
+  payment_ref text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists subscriptions_customer_idx on subscriptions (customer_id);
+create index if not exists subscriptions_plan_idx on subscriptions (plan_id);
+create index if not exists subscriptions_renews_idx on subscriptions (renews_at);
+
+drop trigger if exists trg_subscriptions_updated_at on subscriptions;
+create trigger trg_subscriptions_updated_at
+  before update on subscriptions
+  for each row execute function set_updated_at();
+
+-- ---------- RLS ----------
+alter table subscription_plans enable row level security;
+alter table subscriptions enable row level security;
+
+-- Public can view active plans (for the /membership pricing page)
+create policy "public can view active plans" on subscription_plans
+  for select using (is_active = true);
+
+-- Staff full access
+create policy "staff full access subscription_plans" on subscription_plans
+  for all using (auth.uid() in (select id from staff_profiles));
+
+create policy "staff full access subscriptions" on subscriptions
+  for all using (auth.uid() in (select id from staff_profiles));
+
+-- ---------- SEED PLANS ----------
+insert into subscription_plans (name, description, price_ghs, features)
+select *
+from (values
+  (
+    'Basic',
+    'Great for individuals who want regular dental care',
+    120.00::numeric,
+    '["1 cleaning per month", "Priority appointment booking", "10% off all services", "Free dental checkup"]'::jsonb
+  ),
+  (
+    'Premium',
+    'Full-coverage plan for complete dental wellness',
+    250.00::numeric,
+    '["2 cleanings per month", "Priority appointment booking", "20% off all services", "Free dental checkup", "Free teeth whitening (quarterly)", "Dedicated care coordinator"]'::jsonb
+  )
+) as t(name, description, price_ghs, features)
+where not exists (select 1 from subscription_plans limit 1);

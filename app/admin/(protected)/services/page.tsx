@@ -1,78 +1,84 @@
-import { createClient } from "@/lib/supabase/server";
-import { Card, Badge, Input, Label, Button } from "@/components/ui/primitives";
+import { createServiceClient } from "@/lib/supabase/service";
+import { Card, Badge } from "@/components/ui/primitives";
+import ServiceItem from "@/components/admin/service-item";
+import { AddServiceModal } from "@/components/admin/add-service-modal";
 import { formatGHS } from "@/lib/utils";
-import { addService } from "@/app/admin/(protected)/services/actions";
 import type { Service } from "@/lib/types";
 
 export default async function ServicesAdminPage() {
-  const supabase = createClient();
+  const supabase = createServiceClient();
   const { data: services } = await supabase.from("services").select("*").order("category");
+  const totalServices = (services as Service[] | null) ?? [];
+  const activeServices = totalServices.filter((s) => s.is_active);
+  const inactiveCount = totalServices.filter((s) => !s.is_active).length;
+  const categoryCount = new Set(totalServices.map((s) => s.category)).size;
 
   return (
     <div>
-      <p className="text-sm font-semibold uppercase tracking-wide text-teal">Operations</p>
-      <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Services</h1>
-      <p className="mt-1 text-sm text-muted">{services?.length ?? 0} services offered</p>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Card className="overflow-hidden">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-teal-darker/5 text-xs uppercase tracking-wide text-muted">
-                <tr>
-                  <th className="px-5 py-3 font-semibold">Service</th>
-                  <th className="px-5 py-3 font-semibold">Category</th>
-                  <th className="px-5 py-3 font-semibold">Price</th>
-                  <th className="px-5 py-3 font-semibold">Duration</th>
-                  <th className="px-5 py-3 font-semibold">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(services as Service[] | null)?.map((s) => (
-                  <tr key={s.id} className="border-t border-teal-darker/5">
-                    <td className="px-5 py-3.5 font-medium text-ink">{s.name}</td>
-                    <td className="px-5 py-3.5 text-muted">{s.category}</td>
-                    <td className="px-5 py-3.5 text-muted">{formatGHS(s.price_ghs)}</td>
-                    <td className="px-5 py-3.5 text-muted">{s.duration_minutes} min</td>
-                    <td className="px-5 py-3.5">
-                      <Badge tone={s.is_active ? "success" : "danger"}>
-                        {s.is_active ? "Active" : "Inactive"}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-wide text-teal">Operations</p>
+          <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Services</h1>
+          <p className="mt-1 text-sm text-muted">{activeServices.length} active services available</p>
         </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap gap-2">
+            <Badge tone="gold">{totalServices.length} total</Badge>
+            <Badge tone="neutral">{categoryCount} categories</Badge>
+            <Badge tone={inactiveCount > 0 ? "warning" : "success"}>
+              {inactiveCount} inactive
+            </Badge>
+          </div>
+          <AddServiceModal />
+        </div>
+      </div>
 
-        <Card className="p-6 h-fit">
-          <p className="font-serif text-lg font-bold text-ink">Add Service</p>
-          <form action={addService} className="mt-4 space-y-4">
-            <div>
-              <Label htmlFor="name">Service name</Label>
-              <Input id="name" name="name" required placeholder="e.g. Invisalign Consultation" />
-            </div>
-            <div>
-              <Label htmlFor="category">Category</Label>
-              <Input id="category" name="category" required placeholder="Cosmetic, Preventive, General…" />
-            </div>
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Input id="description" name="description" placeholder="Short description" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="price_ghs">Price (GHS)</Label>
-                <Input id="price_ghs" name="price_ghs" type="number" step="0.01" required />
-              </div>
-              <div>
-                <Label htmlFor="duration_minutes">Duration (min)</Label>
-                <Input id="duration_minutes" name="duration_minutes" type="number" required />
-              </div>
-            </div>
-            <Button type="submit" className="w-full">Add Service</Button>
-          </form>
+      <div className="mt-8">
+        <Card className="overflow-hidden">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-teal-darker/5 text-xs uppercase tracking-wide text-muted">
+              <tr>
+                <th className="px-5 py-3 font-semibold">Service</th>
+                <th className="px-5 py-3 font-semibold">Category</th>
+                <th className="px-5 py-3 font-semibold">Price</th>
+                <th className="px-5 py-3 font-semibold">Duration</th>
+                <th className="px-5 py-3 font-semibold">Status</th>
+                <th className="px-5 py-3 font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-teal-darker/10">
+              {totalServices.map((s) => (
+                <tr key={s.id} className="border-t border-teal-darker/5 hover:bg-teal-darker/[0.01]">
+                  <td className="px-5 py-3.5 font-medium text-ink">
+                    <div>{s.name}</div>
+                    {s.description && (
+                      <div className="text-xs text-muted font-normal mt-0.5 max-w-sm truncate" title={s.description}>
+                        {s.description}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-5 py-3.5 text-muted">{s.category}</td>
+                  <td className="px-5 py-3.5 text-muted">{formatGHS(s.price_ghs)}</td>
+                  <td className="px-5 py-3.5 text-muted">{s.duration_minutes} min</td>
+                  <td className="px-5 py-3.5">
+                    <Badge tone={s.is_active ? "success" : "danger"}>
+                      {s.is_active ? "Active" : "Inactive"}
+                    </Badge>
+                  </td>
+                  <td className="px-5 py-3.5 whitespace-nowrap">
+                    <ServiceItem service={s as Service} />
+                  </td>
+                </tr>
+              ))}
+              {totalServices.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-5 py-10 text-center text-muted">
+                    No services found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </Card>
       </div>
     </div>

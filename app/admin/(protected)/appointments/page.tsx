@@ -1,8 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
+import { getStaffProfile } from "@/lib/supabase/staff-profile";
 import { Card, Badge } from "@/components/ui/primitives";
 import { formatDate, formatTime, formatGHS, statusLabel } from "@/lib/utils";
 import { updateAppointmentStatus } from "@/app/admin/(protected)/appointments/actions";
 import { StatusSelect } from "@/components/admin/status-select";
+import { BookAppointmentModal } from "@/components/admin/book-appointment-modal";
 import type { AppointmentWithRelations, AppointmentStatus } from "@/lib/types";
 
 const STATUS_OPTIONS: AppointmentStatus[] = ["pending", "confirmed", "completed", "cancelled", "no_show"];
@@ -12,8 +15,10 @@ export default async function AppointmentsPage({
 }: {
   searchParams: { status?: string };
 }) {
-  const supabase = createClient();
-  let query = supabase
+  const serviceSupabase = createServiceClient();
+  const staff = await getStaffProfile();
+
+  let query = serviceSupabase
     .from("appointments")
     .select("*, customer:customers(id, full_name, phone, email), service:services(id, name, price_ghs, duration_minutes), branch:branches(id, name)")
     .order("appointment_date", { ascending: false })
@@ -23,14 +28,36 @@ export default async function AppointmentsPage({
     query = query.eq("status", searchParams.status);
   }
 
-  const { data: appointments } = await query;
+  if (staff?.role === "branch_manager" && staff.branch_id) {
+    query = query.eq("branch_id", staff.branch_id);
+  }
+
+  const [{ data: appointments }, { data: branches }, { data: services }, { data: customers }] = await Promise.all([
+    query,
+    serviceSupabase.from("branches").select("id, name").eq("is_active", true).order("name"),
+    serviceSupabase.from("services").select("id, name, price_ghs").eq("is_active", true).order("name"),
+    serviceSupabase.from("customers").select("id, full_name, phone").order("full_name"),
+  ]);
+
   const list = (appointments as unknown as AppointmentWithRelations[]) ?? [];
+  const branchList = (branches as any[]) ?? [];
+  const serviceList = (services as any[]) ?? [];
+  const customerList = (customers as any[]) ?? [];
 
   return (
     <div>
-      <p className="text-sm font-semibold uppercase tracking-wide text-teal">Operations</p>
-      <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Appointments</h1>
-      <p className="mt-1 text-sm text-muted">{list.length} appointments</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-wide text-teal">Operations</p>
+          <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Appointments</h1>
+          <p className="mt-1 text-sm text-muted">{list.length} appointments</p>
+        </div>
+        <BookAppointmentModal
+          customers={customerList}
+          services={serviceList}
+          branches={branchList}
+        />
+      </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
         <FilterLink label="All" status={undefined} active={!searchParams.status} />
@@ -53,7 +80,6 @@ export default async function AppointmentsPage({
           </thead>
           <tbody>
             {list.map((a) => {
-              const updateWithId = updateAppointmentStatus.bind(null, a.id);
               return (
                 <tr key={a.id} className="border-t border-teal-darker/5">
                   <td className="px-5 py-3.5 text-muted">
@@ -68,7 +94,7 @@ export default async function AppointmentsPage({
                   <td className="px-5 py-3.5 text-muted">{a.branch?.name}</td>
                   <td className="px-5 py-3.5 text-muted">{formatGHS(a.price_ghs)}</td>
                   <td className="px-5 py-3.5">
-                    <StatusSelect action={updateWithId} defaultValue={a.status} options={STATUS_OPTIONS} />
+                    <StatusSelect action={updateAppointmentStatus} appointmentId={a.id} defaultValue={a.status} options={STATUS_OPTIONS} />
                   </td>
                 </tr>
               );

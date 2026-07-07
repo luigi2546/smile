@@ -1,19 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   color-scheme: light;
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-strong: #F1F5F9;
+  --text: #000b47;
+  --muted: #64707A;
+  --accent: #0012A3;
+  --accent-soft: #E0E7FF;
+  --accent-gold: #D4AF37;
+  --border: #E2E8F0;
+  --shadow: 0 16px 50px rgba(0, 18, 163, 0.08);
 }
 
-body {
-  @apply bg-cream text-ink antialiased;
-}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
 
-::selection {
-  @apply bg-gold/30;
+  body {
+    @apply bg-surface text-ink antialiased;
+    font-family: Inter, system-ui, sans-serif;
+    font-weight: 500;
+    line-height: 1.6;
+    background-color: var(--bg);
+  }
+
+  h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: Playfair Display, Georgia, serif;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+
+  p {
+    color: var(--text);
+  }
+
+  ::selection {
+    background: rgba(212, 175, 55, 0.25);
+  }
 }
 
 .focus-ring {
-  @apply outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-cream;
+  @apply outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+}
+
+section {
+  position: relative;
+}
+
+.shadow-card {
+  box-shadow: var(--shadow);
 }

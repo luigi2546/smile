@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Luminex CRM | Patient Record</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&amp;family=Open+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .shade-swatch {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e0e3e5;
+            border-radius: 10px;
+        }
+        .medical-grid-bg {
+            background-image: radial-gradient(#0453cd 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            opacity: 0.03;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f7fafc",
+                        "surface-variant": "#e0e3e5",
+                        "primary-container": "#ffffff",
+                        "on-tertiary-container": "#007fa8",
+                        "tertiary-fixed": "#c2e8ff",
+                        "on-primary-fixed": "#1a1c1c",
+                        "on-tertiary-fixed-variant": "#004d67",
+                        "inverse-primary": "#c6c6c7",
+                        "on-secondary-fixed-variant": "#0040a2",
+                        "on-background": "#181c1e",
+                        "secondary": "#0453cd",
+                        "on-tertiary-fixed": "#001e2b",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#ebeef0",
+                        "secondary-container": "#356ee7",
+                        "primary-fixed-dim": "#c6c6c7",
+                        "surface": "#f7fafc",
+                        "outline-variant": "#c4c7c8",
+                        "inverse-surface": "#2d3133",
+                        "on-primary-container": "#747676",
+                        "error": "#ba1a1a",
+                        "tertiary": "#006688",
+                        "tertiary-fixed-dim": "#75d1ff",
+                        "surface-container-low": "#f1f4f6",
+                        "surface-tint": "#5d5f5f",
+                        "outline": "#747878",
+                        "on-secondary-fixed": "#001848",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#fefcff",
+                        "primary": "#5d5f5f",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed": "#e2e2e2",
+                        "surface-dim": "#d7dadc",
+                        "on-surface": "#181c1e",
+                        "inverse-on-surface": "#eef1f3",
+                        "on-primary-fixed-variant": "#454747",
+                        "surface-container-high": "#e5e9eb",
+                        "tertiary-container": "#ffffff",
+                        "secondary-fixed-dim": "#b2c5ff",
+                        "background": "#f7fafc",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#444748",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#dae2ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "unit": "8px",
+                        "gutter": "24px",
+                        "container-max": "1200px",
+                        "section-padding": "80px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Open Sans"],
+                        "label-sm": ["Open Sans"],
+                        "headline-sm": ["Montserrat"],
+                        "headline-md": ["Montserrat"],
+                        "body-md": ["Open Sans"],
+                        "display-lg-mobile": ["Montserrat"],
+                        "body-lg": ["Open Sans"],
+                        "display-lg": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "700"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface-bright text-on-surface font-body-md min-h-screen">
+<!-- Sidebar Navigation (Based on SideNavBar JSON) -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low flex flex-col gap-unit py-6 px-4 z-50">
+<div class="mb-8">
+<h1 class="font-headline-sm text-headline-sm text-on-surface">Luminex CRM</h1>
+<p class="text-xs text-on-surface-variant font-label-sm uppercase tracking-wider">Precision Care Portal</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant rounded-lg p-3 transition-all duration-150 scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant rounded-lg p-3 transition-all duration-150 scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md">Bookings</span>
+</a>
+<!-- Active State: Patients -->
+<a class="flex items-center gap-3 text-on-secondary-container bg-secondary-container rounded-lg p-3 transition-all duration-150 scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="groups" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-label-md">Patients</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant rounded-lg p-3 transition-all duration-150 scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant rounded-lg p-3 transition-all duration-150 scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover shadow-sm" data-alt="A professional portrait of a clinical manager in a high-end dental studio environment. The manager has a warm yet authoritative expression, wearing a crisp navy medical tunic. The background is a blurred, bright dental clinic with soft teal and white lighting, emphasizing a clean and premium medical atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgkl1ajItMWJ1kiDf7m_GRX-NkYvYl6TOPiBf5V2rJ6VbTfYmLimWgLMPTfT4rEI0a4xnG9p8sIXPX-c8aReLEBOzd6vM3lq0TDP6ivKuCbS-8P2mVDciThweCdR2s1PbTBN8GaKHdbOBpQivXeGMoRsrveGtnzwnmBgmInYiHEPDmZTn2LPibrom-85zxq6YC376EUKjDdLzQgDl0xizTJRp3AEUCb_XGFSQEdzcaH57sYZjgV6Z3"/>
+<div class="overflow-hidden">
+<p class="font-label-md text-on-surface truncate">Dr. Helena Vance</p>
+<p class="text-xs text-on-surface-variant truncate">Clinic Manager</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 p-margin-desktop relative">
+<div class="absolute inset-0 medical-grid-bg pointer-events-none"></div>
+<!-- Header Action Bar -->
+<header class="flex justify-between items-end mb-8 relative z-10">
+<div>
+<nav class="flex items-center gap-2 text-on-surface-variant mb-2">
+<span class="text-xs font-label-sm">Patients</span>
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+<span class="text-xs font-label-sm text-secondary">Record #LX-8892</span>
+</nav>
+<h2 class="font-headline-md text-headline-md text-on-surface">Julianne Sterling</h2>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 border border-secondary text-secondary rounded-lg font-label-md hover:bg-surface-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="print">print</span>
+                    Export PDF
+                </button>
+<button class="px-6 py-2 bg-secondary text-on-secondary rounded-lg font-label-md shadow-sm hover:opacity-90 transition-all flex items-center gap-2 border-b-2 border-on-tertiary-container/20">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+                    Edit Record
+                </button>
+</div>
+</header>
+<!-- Patient Content Grid -->
+<div class="grid grid-cols-12 gap-gutter relative z-10">
+<!-- Left Column: Patient Identity & Contact -->
+<div class="col-span-4 space-y-gutter">
+<!-- Info Card -->
+<section class="bg-primary-container p-6 rounded-xl shadow-sm border border-outline-variant/30">
+<div class="flex flex-col items-center text-center mb-6">
+<div class="relative mb-4">
+<img class="w-32 h-32 rounded-full object-cover border-4 border-surface-container shadow-md" data-alt="A high-quality studio portrait of a woman in her late 30s with a confident, radiant smile showing perfectly aligned teeth. She is wearing a soft pastel blouse against a clean, neutral background. The lighting is soft and flattering, mirroring the professional and aesthetic focus of a high-end dental studio." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMFL3bb-31aCVKmDLZp_1dbEMugMR-bLebYxPa6rOEclMQDaZUwxI2jDkg5h2hi91KCdR2VwgwWIaFBl55AloscoZSgsvzV9Gr0iIPeLX7UTxiAKrfSWgqsP0phTcVqoV6_Bl7EXOrW-hu6689M9ce-PQcz9jpc2QHaLWp7zCMnCwl-95zChRw6J29-vJuKzelpCcn7kzAA_4hXvGCKlkAUyuwzQiw5pVvDFPDJuiyhbnPS5_lGt8V"/>
+<div class="absolute bottom-0 right-0 bg-secondary text-white p-1.5 rounded-full border-2 border-white">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<span class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant text-xs font-label-sm rounded-full mb-2">Gold Member</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-start gap-4">
+<div class="p-2 bg-surface-container-low rounded-lg text-secondary">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+</div>
+<div>
+<p class="text-xs text-on-surface-variant font-label-sm uppercase">Email Address</p>
+<p class="font-body-md text-on-surface">j.sterling@design.co</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="p-2 bg-surface-container-low rounded-lg text-secondary">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+</div>
+<div>
+<p class="text-xs text-on-surface-variant font-label-sm uppercase">Phone Number</p>
+<p class="font-body-md text-on-surface">+1 (555) 012-3456</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="p-2 bg-surface-container-low rounded-lg text-secondary">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+</div>
+<div>
+<p class="text-xs text-on-surface-variant font-label-sm uppercase">Residence</p>
+<p class="font-body-md text-on-surface">San Francisco, CA</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Medical Flags -->
+<section class="bg-primary-container p-6 rounded-xl shadow-sm border border-outline-variant/30">
+<h3 class="font-label-md text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="clinical_notes">clinical_notes</span>
+                        Clinical Overview
+                    </h3>
+<div class="space-y-3">
+<div class="flex justify-between items-center p-3 bg-error-container/20 border border-error/10 rounded-lg">
+<span class="text-sm font-label-md text-error">Latex Allergy</span>
+<span class="material-symbols-outlined text-error text-lg" data-icon="warning">warning</span>
+</div>
+<div class="flex justify-between items-center p-3 bg-surface-container rounded-lg">
+<span class="text-sm font-label-md text-on-surface">Sensitive Enamel</span>
+<span class="material-symbols-outlined text-on-surface-variant text-lg" data-icon="info">info</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Middle Column: Shade Measurements & Treatment Progress -->
+<div class="col-span-5 space-y-gutter">
+<!-- Shade Measurement Bento -->
+<section class="bg-primary-container p-6 rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden relative">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-sm text-on-surface">Esthetic Analysis</h3>
+<span class="text-xs font-label-sm text-on-surface-variant">Last updated: Oct 12, 2023</span>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div class="p-4 bg-surface-container-low rounded-lg border border-outline-variant/20 flex flex-col items-center">
+<p class="text-xs font-label-sm text-on-surface-variant mb-3 uppercase">Starting Shade</p>
+<div class="w-20 h-20 rounded-full shade-swatch bg-[#F3E5AB] mb-3 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-50"></div>
+</div>
+<p class="font-headline-sm text-on-surface">A3.5</p>
+<p class="text-[10px] text-on-surface-variant">VITA Classical</p>
+</div>
+<div class="p-4 bg-surface-container-low rounded-lg border border-outline-variant/20 flex flex-col items-center">
+<p class="text-xs font-label-sm text-on-surface-variant mb-3 uppercase">Target Shade</p>
+<div class="w-20 h-20 rounded-full shade-swatch bg-[#FFFFFF] mb-3 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-50"></div>
+</div>
+<p class="font-headline-sm text-on-surface">BL1</p>
+<p class="text-[10px] text-on-surface-variant">Bleach Guide</p>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-label-sm mb-1">
+<span>Progression</span>
+<span class="text-secondary font-bold">85% Complete</span>
+</div>
+<div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[85%] rounded-full relative">
+<div class="absolute inset-0 bg-white/20" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shine 2s infinite;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Treatment Timeline -->
+<section class="bg-primary-container p-6 rounded-xl shadow-sm border border-outline-variant/30">
+<h3 class="font-label-md text-on-surface mb-6">Recent History</h3>
+<div class="space-y-6 relative">
+<div class="absolute left-[15px] top-2 bottom-2 w-0.5 bg-outline-variant"></div>
+<div class="flex gap-4 relative">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center z-10 border-4 border-primary-container">
+<span class="material-symbols-outlined text-white text-xs" data-icon="check" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-label-md text-on-surface">In-Office Laser Whitening</p>
+<p class="text-xs text-on-surface-variant">Oct 12, 2023 • Dr. Aris Thorne</p>
+<p class="mt-2 text-xs text-on-surface-variant leading-relaxed">Full arch whitening (60 mins). Patient reported minor sensitivity post-op. Prescribed MI Paste.</p>
+</div>
+</div>
+<div class="flex gap-4 relative">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center z-10 border-4 border-primary-container">
+<span class="material-symbols-outlined text-white text-xs" data-icon="check" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-label-md text-on-surface">Digital Scanning &amp; Impressions</p>
+<p class="text-xs text-on-surface-variant">Sep 28, 2023 • Tech Sarah L.</p>
+<p class="mt-2 text-xs text-on-surface-variant leading-relaxed">iTero scan completed for whitening trays. Marginal integrity confirmed.</p>
+</div>
+</div>
+<div class="flex gap-4 relative">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center z-10 border-4 border-primary-container">
+<div class="w-2 h-2 rounded-full bg-outline"></div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-label-md text-on-surface opacity-60">Final Polish &amp; Seal</p>
+<p class="text-xs text-on-surface-variant">Scheduled for Oct 26, 2023</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Notes & Images -->
+<div class="col-span-3 space-y-gutter">
+<!-- Photo Gallery -->
+<section class="bg-primary-container p-4 rounded-xl shadow-sm border border-outline-variant/30">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-label-md text-on-surface">Clinical Media</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-secondary" data-icon="add_a_photo">add_a_photo</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<img class="w-full aspect-square object-cover rounded-lg hover:scale-[1.02] transition-transform cursor-zoom-in" data-alt="A clinical close-up macro photograph of a patient's anterior teeth before a whitening procedure. High-resolution medical photography showing natural enamel texture and slight yellowish discoloration under bright, neutral dental lighting. Minimalist white background frame." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFiLqS27AjSEyEvtlLUJ9JrddrKFbKse0DZ01Xo5cRe-rNpAG9EzEREBtg4ui30MuTyUgKXRX9-cW4n2yH3dcERBMJ06BUgIWQ969aW9UaPTBV6kv2STZqOAvX9l4LHUlxwfSq-8Wzauq5socozTC02rauRFx46_6EQ2XDz0EjtRDwqlF13aP90b9WZhdIK0lZ2vH_OIBmulFm9juHb_D9YsmdywPIp67Gd_H16RFD8LOeLnQ-cMpq"/>
+<img class="w-full aspect-square object-cover rounded-lg hover:scale-[1.02] transition-transform cursor-zoom-in" data-alt="A clinical close-up macro photograph of a patient's anterior teeth after the first round of laser whitening. Visible improvement in brightness and shade, with the enamel looking clean and polished. Crisp medical focus with neutral, high-key studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAv02oRShepLCcfK9-ftSUBIY2gId77IqJUILAM6cwQYrpilt40kCJzwv2xF2k7YzCAO2qIT6O0cuUzYQBY5KaMArFXmao8PbDVRGjMmNPYwbUYk7YSvucSzWECWt-Yc1RcorTTmEIsqIsExWdpyGo7PqOi2_rqe56SAfqkn96q6b4oE54jfpAypKP2VICvNkadhsdg54tQ3TQ-FC8L5cRWUMamchLmMeGR-fgyUg5rnbBnfEuMuD-S"/>
+<div class="col-span-2 bg-surface-container flex flex-col items-center justify-center py-6 rounded-lg border-2 border-dashed border-outline-variant/50 cursor-pointer hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant mb-1" data-icon="cloud_upload">cloud_upload</span>
+<span class="text-[10px] font-label-sm text-on-surface-variant">Upload X-Rays</span>
+</div>
+</div>
+</section>
+<!-- Private Notes -->
+<section class="bg-primary-container p-6 rounded-xl shadow-sm border border-outline-variant/30 h-[calc(100%-240px)] flex flex-col">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-secondary" data-icon="lock">lock</span>
+<h3 class="font-label-md text-on-surface">Confidential Notes</h3>
+</div>
+<div class="flex-1 bg-surface-container-low p-4 rounded-lg custom-scrollbar overflow-y-auto">
+<p class="text-sm text-on-surface leading-relaxed italic">
+                            "Patient is preparing for wedding on Nov 15th. High priority for BL1 shade. No coffee consumption for 48h after each session. Prefers late evening appointments due to work schedule at design studio."
+                        </p>
+<div class="mt-4 pt-4 border-t border-outline-variant/30 text-[10px] text-on-surface-variant flex justify-between">
+<span>Author: Dr. Vance</span>
+<span>Oct 14, 11:20 AM</span>
+</div>
+</div>
+<button class="w-full mt-4 py-2 text-xs font-label-sm text-secondary bg-secondary/5 rounded-lg hover:bg-secondary/10 transition-colors">
+                        Add New Entry
+                    </button>
+</section>
+</div>
+</div>
+<!-- Sticky Status Footer (Optional UX detail) -->
+<div class="fixed bottom-6 right-margin-desktop bg-white px-6 py-3 rounded-full shadow-lg border border-outline-variant/30 flex items-center gap-4 z-50">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="text-xs font-label-md text-on-surface">Auto-saving...</span>
+</div>
+<div class="w-px h-4 bg-outline-variant"></div>
+<button class="text-xs font-label-md text-on-surface-variant hover:text-on-surface">Discard</button>
+<button class="px-4 py-1 bg-secondary text-on-secondary rounded-full text-xs font-label-md hover:opacity-90">Commit Changes</button>
+</div>
+</main>
+<style>
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+<script>
+        // Simple micro-interaction for shade swatches
+        document.querySelectorAll('.shade-swatch').forEach(swatch => {
+            swatch.addEventListener('mouseenter', () => {
+                swatch.style.transform = 'scale(1.1) rotate(5deg)';
+                swatch.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            });
+            swatch.addEventListener('mouseleave', () => {
+                swatch.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+    </script>
+</body></html>

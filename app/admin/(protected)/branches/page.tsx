@@ -1,32 +1,30 @@
-import { createClient } from "@/lib/supabase/server";
-import { Card, Badge, Input, Label, Button } from "@/components/ui/primitives";
+import { createServiceClient } from "@/lib/supabase/service";
+import { Card, Input, Label, Button } from "@/components/ui/primitives";
 import { addBranch } from "@/app/admin/(protected)/branches/actions";
+import { BranchCard } from "@/components/admin/branch-card";
 import type { Branch } from "@/lib/types";
 
 export default async function BranchesPage() {
-  const supabase = createClient();
+  const supabase = createServiceClient();
   const { data: branches } = await supabase.from("branches").select("*").order("name");
+  const branchList = (branches as Branch[] | null) ?? [];
 
   return (
     <div>
       <p className="text-sm font-semibold uppercase tracking-wide text-teal">Operations</p>
       <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Branches</h1>
-      <p className="mt-1 text-sm text-muted">{branches?.length ?? 0} branches</p>
+      <p className="mt-1 text-sm text-muted">{branchList.length} branches</p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 grid gap-4 sm:grid-cols-2">
-          {(branches as Branch[] | null)?.map((b) => (
-            <Card key={b.id} className="p-5">
-              <div className="flex items-start justify-between">
-                <p className="font-semibold text-ink">{b.name}</p>
-                <Badge tone={b.is_active ? "success" : "danger"}>
-                  {b.is_active ? "Active" : "Inactive"}
-                </Badge>
-              </div>
-              <p className="mt-1 text-sm text-muted">{b.address}</p>
-              {b.phone && <p className="mt-2 text-sm text-teal-darker">{b.phone}</p>}
-            </Card>
+          {branchList.map((b) => (
+            <BranchCard key={b.id} branch={b} />
           ))}
+          {branchList.length === 0 && (
+            <p className="col-span-2 py-8 text-center text-sm text-muted">
+              No branches yet — add one using the form.
+            </p>
+          )}
         </div>
 
         <Card className="p-6 h-fit">

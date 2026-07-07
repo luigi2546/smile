@@ -9,21 +9,22 @@ export function Button({
   href,
   ...props
 }: ComponentProps<"button"> & {
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
   href?: string;
 }) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors focus-ring disabled:opacity-50 disabled:pointer-events-none";
+    "inline-flex items-center justify-center gap-2 rounded-2xl font-semibold transition duration-200 focus-ring disabled:opacity-50 disabled:pointer-events-none";
   const variants = {
-    primary: "bg-teal-darker text-white hover:bg-teal-panel",
-    secondary: "bg-gold text-teal-darker hover:bg-gold-light",
-    ghost: "bg-transparent text-teal-darker border border-teal-darker/20 hover:bg-teal-darker/5",
+    primary: "bg-teal text-white hover:bg-teal-dark shadow-soft",
+    secondary: "bg-gold text-[#173B3F] hover:bg-gold-dark",
+    danger: "bg-red-600 text-white hover:bg-red-700 shadow-soft",
+    ghost: "border border-surface-strong bg-white text-ink hover:bg-surface2",
   };
   const sizes = {
-    sm: "px-3.5 py-1.5 text-sm",
-    md: "px-5 py-2.5 text-sm",
-    lg: "px-7 py-3.5 text-base",
+    sm: "px-4 py-2",
+    md: "px-5 py-3",
+    lg: "px-6 py-3.5 text-base",
   };
 
   const classes = cn(base, variants[variant], sizes[size], className);
@@ -43,7 +44,7 @@ export function Card({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "rounded-2xl border border-teal-darker/10 bg-white shadow-sm",
+        "rounded-[1.75rem] border border-teal/20 bg-teal/5 shadow-soft",
         className
       )}
       {...props}
@@ -57,16 +58,16 @@ export function Badge({
   ...props
 }: ComponentProps<"span"> & { tone?: "neutral" | "success" | "warning" | "danger" | "gold" }) {
   const tones = {
-    neutral: "bg-teal-darker/5 text-teal-darker",
+    neutral: "bg-surface-strong text-ink",
     success: "bg-emerald-50 text-emerald-700",
     warning: "bg-amber-50 text-amber-700",
     danger: "bg-red-50 text-red-700",
-    gold: "bg-gold/15 text-teal-darker",
+    gold: "bg-gold-light text-ink",
   };
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold",
         tones[tone],
         className
       )}
@@ -79,7 +80,7 @@ export function Input({ className, ...props }: ComponentProps<"input">) {
   return (
     <input
       className={cn(
-        "w-full rounded-lg border border-teal-darker/15 bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus-ring",
+        "w-full rounded-2xl border border-surface-strong bg-surface px-4 py-3 text-sm text-ink placeholder:text-muted shadow-sm transition focus:border-teal focus-visible:ring-2 focus-visible:ring-teal/15 focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
         className
       )}
       {...props}
@@ -91,7 +92,7 @@ export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
   return (
     <textarea
       className={cn(
-        "w-full rounded-lg border border-teal-darker/15 bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus-ring",
+        "w-full min-h-[108px] rounded-2xl border border-surface-strong bg-surface px-4 py-3 text-sm text-ink placeholder:text-muted shadow-sm transition focus:border-teal focus-visible:ring-2 focus-visible:ring-teal/15 focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
         className
       )}
       {...props}
@@ -102,7 +103,7 @@ export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
 export function Label({ className, ...props }: ComponentProps<"label">) {
   return (
     <label
-      className={cn("mb-1.5 block text-sm font-medium text-ink", className)}
+      className={cn("mb-2 block text-sm font-semibold text-ink", className)}
       {...props}
     />
   );

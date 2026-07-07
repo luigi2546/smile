@@ -14,7 +14,8 @@ export async function login(_prevState: LoginState, formData: FormData): Promise
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return { error: "Invalid email or password." };
+    console.error("Admin login failed:", error);
+    return { error: error.message || "Invalid email or password." };
   }
 
   redirect(next);

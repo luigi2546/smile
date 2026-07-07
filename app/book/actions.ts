@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 
@@ -40,9 +41,10 @@ export async function createAppointment(
 
   const { serviceId, branchId, date, time, fullName, phone, email, notes } = parsed.data;
   const supabase = createClient();
+  const serviceSupabase = createServiceClient();
 
   // 1. Find or create the customer by phone number.
-  const { data: existingCustomer } = await supabase
+  const { data: existingCustomer } = await serviceSupabase
     .from("customers")
     .select("id")
     .eq("phone", phone)
@@ -51,7 +53,7 @@ export async function createAppointment(
   let customerId = existingCustomer?.id as string | undefined;
 
   if (!customerId) {
-    const { data: newCustomer, error: customerError } = await supabase
+    const { data: newCustomer, error: customerError } = await serviceSupabase
       .from("customers")
       .insert({
         full_name: fullName,
@@ -69,14 +71,14 @@ export async function createAppointment(
   }
 
   // 2. Look up the service price to snapshot it on the appointment.
-  const { data: service } = await supabase
+  const { data: service } = await serviceSupabase
     .from("services")
     .select("price_ghs")
     .eq("id", serviceId)
     .single();
 
   // 3. Create the appointment.
-  const { data: appointment, error: appointmentError } = await supabase
+  const { data: appointment, error: appointmentError } = await serviceSupabase
     .from("appointments")
     .insert({
       customer_id: customerId,

@@ -85,3 +85,34 @@ export type StaffProfile = {
   branch_id: string | null;
   created_at: string;
 };
+
+export type SubscriptionStatus = "active" | "paused" | "cancelled" | "expired";
+
+export type SubscriptionPlan = {
+  id: string;
+  name: string;
+  description: string | null;
+  price_ghs: number;
+  features: string[];
+  is_active: boolean;
+  created_at: string;
+};
+
+export type Subscription = {
+  id: string;
+  customer_id: string;
+  plan_id: string;
+  status: SubscriptionStatus;
+  started_at: string;
+  renews_at: string;
+  cancelled_at: string | null;
+  payment_ref: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SubscriptionWithRelations = Subscription & {
+  customer: Pick<Customer, "id" | "full_name" | "phone"> | null;
+  plan: Pick<SubscriptionPlan, "id" | "name" | "price_ghs"> | null;
+};
