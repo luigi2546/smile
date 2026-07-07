@@ -14,11 +14,7 @@ const serviceIcons: Record<string, React.ComponentType<{ className?: string }>> 
   "Smile Makeover": Smile,
 };
 
-const heroStats = [
-  { value: "4", label: "Branches in Accra" },
-  { value: "4.9", label: "Average rating" },
-  { value: "30+", label: "Trusted clinicians" },
-];
+// heroStats removed
 
 const benefits = [
   {
@@ -75,19 +71,12 @@ export default async function HomePage() {
               <Button href="/book" variant="secondary" size="lg">
                 Book appointment
               </Button>
-              <Button href="/services" variant="ghost" size="lg" className="border-white/25 text-white hover:bg-white/10">
+              <Button href="/services" variant="ghost" size="lg" className="border-white/25 text-ink hover:bg-white/10 hover:text-white">
                 View services
               </Button>
             </div>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              {heroStats.map((item) => (
-                <div key={item.label} className="rounded-3xl border border-white/10 bg-white/5 p-5 text-center">
-                  <p className="text-3xl font-bold text-gold">{item.value}</p>
-                  <p className="mt-2 text-sm text-white/70">{item.label}</p>
-                </div>
-              ))}
-            </div>
+            {/* hero stats removed */}
           </div>
 
           <div className="mt-14 lg:mt-0 lg:w-[38%]">
@@ -180,6 +169,10 @@ export default async function HomePage() {
               <p className="mt-4 max-w-xl text-sm text-muted">
                 Choose a service, book a branch, and confirm your appointment in minutes.
               </p>
+
+              <div className="mt-8">
+                <img src="/booking-illustration.svg" alt="Booking steps illustration" className="mx-auto w-full max-w-2xl rounded-lg shadow-sm" />
+              </div>
             </div>
 
             <div className="grid gap-4">
@@ -228,8 +221,8 @@ export default async function HomePage() {
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
               <Badge tone="gold" className="mb-4">Smile Club</Badge>
-              <h2 className="font-serif text-4xl font-bold">Priority care for loyal smiles.</h2>
-              <p className="mt-5 max-w-xl text-sm text-white/75">
+              <h2 className="font-serif text-5xl font-bold text-white">Priority care for loyal smiles.</h2>
+              <p className="mt-5 max-w-xl text-sm text-white/90">
                 Sign up for membership to get priority booking, whitening savings, and regular follow-up reminders.
               </p>
               <Button href="/book" variant="secondary" size="lg" className="mt-8">
