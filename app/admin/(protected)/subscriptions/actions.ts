@@ -3,6 +3,98 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import { revalidatePath } from "next/cache";
 
+async function createMembershipAppointment(
+  supabase: ReturnType<typeof createServiceClient>,
+  customer_id: string,
+  plan_id: string,
+  payment_ref: string | null,
+  appointmentDate?: string,
+  appointmentNotes?: string
+) {
+  const { data: customerData, error: customerError } = await supabase
+    .from("customers")
+    .select("preferred_branch_id")
+    .eq("id", customer_id)
+    .single();
+
+  if (customerError) throw new Error(customerError.message);
+
+  let branchId = (customerData as any)?.preferred_branch_id ?? null;
+
+  if (!branchId) {
+    const { data: branchData, error: branchError } = await supabase
+      .from("branches")
+      .select("id")
+      .eq("is_active", true)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (branchError) throw new Error(branchError.message);
+    branchId = (branchData as any)?.id ?? null;
+  }
+
+  if (!branchId) {
+    throw new Error("Unable to determine a branch for the membership appointment.");
+  }
+
+  const { data: planData, error: planError } = await supabase
+    .from("subscription_plans")
+    .select("name, price_ghs")
+    .eq("id", plan_id)
+    .single();
+
+  if (planError || !planData) {
+    throw new Error(planError?.message || "Subscription plan not found.");
+  }
+
+  const { data: serviceData, error: serviceError } = await supabase
+    .from("services")
+    .select("id")
+    .eq("name", "Smile Club Membership")
+    .maybeSingle();
+
+  let membershipServiceId = (serviceData as any)?.id ?? null;
+  if (!membershipServiceId) {
+    const { data: createdService, error: createServiceError } = await supabase
+      .from("services")
+      .insert({
+        name: "Smile Club Membership",
+        description: `Membership activation for ${planData.name}`,
+        category: "Membership",
+        price_ghs: planData.price_ghs,
+        duration_minutes: 0,
+        is_active: true,
+      })
+      .select("id")
+      .single();
+
+    if (createServiceError || !createdService) {
+      throw new Error(createServiceError?.message || "Unable to create membership service record.");
+    }
+
+    membershipServiceId = createdService.id;
+  }
+
+  const appointment_date = appointmentDate ?? new Date().toISOString().slice(0, 10);
+  const appointment_time = new Date().toTimeString().slice(0, 8);
+
+  const { error: appointmentError } = await supabase.from("appointments").insert({
+    customer_id,
+    service_id: membershipServiceId,
+    branch_id: branchId,
+    appointment_date,
+    appointment_time,
+    status: "confirmed",
+    price_ghs: planData.price_ghs,
+    notes: appointmentNotes ?? (payment_ref ? `Membership payment ${payment_ref}` : "Membership payment"),
+  });
+
+  if (appointmentError) {
+    throw new Error(appointmentError.message);
+  }
+}
+
 // ─── Plan Management ─────────────────────────────────────────────────────────
 
 export async function addPlan(formData: FormData) {
@@ -102,6 +194,15 @@ export async function assignSubscription(formData: FormData) {
     .update({ is_member: true, membership_started_at: started_at })
     .eq("id", customer_id);
 
+  await createMembershipAppointment(
+    supabase,
+    customer_id,
+    plan_id,
+    payment_ref || null,
+    started_at,
+    notes || `Membership payment ${payment_ref || "manual"}`
+  );
+
   revalidatePath("/admin/subscriptions");
   revalidatePath(`/admin/customers/${customer_id}`);
 }
@@ -149,7 +250,7 @@ export async function renewSubscription(formData: FormData) {
 
   const { data: sub } = await supabase
     .from("subscriptions")
-    .select("renews_at")
+    .select("customer_id, plan_id, renews_at")
     .eq("id", id)
     .single();
 
@@ -167,6 +268,15 @@ export async function renewSubscription(formData: FormData) {
       payment_ref: payment_ref || null,
     })
     .eq("id", id);
+
+  await createMembershipAppointment(
+    supabase,
+    sub.customer_id,
+    sub.plan_id,
+    payment_ref || null,
+    new Date().toISOString().slice(0, 10),
+    payment_ref ? `Membership renewal payment ${payment_ref}` : "Membership renewal payment"
+  );
 
   revalidatePath("/admin/subscriptions");
 }

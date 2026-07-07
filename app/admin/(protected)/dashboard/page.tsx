@@ -7,6 +7,10 @@ import { SmsPanel } from "@/components/admin/sms-panel";
 import { formatGHS } from "@/lib/utils";
 import type { Appointment, Branch, Service } from "@/lib/types";
 
+type AppointmentWithService = Appointment & {
+  service?: Pick<Service, "id" | "category" | "price_ghs"> | null;
+};
+
 function startOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), 1);
 }
@@ -21,7 +25,7 @@ export default async function DashboardPage() {
 
   let appointmentsQuery = supabase
     .from("appointments")
-    .select("*")
+    .select("*, service:services(id, price_ghs, category)")
     .gte("appointment_date", sixMonthsAgo.toISOString().slice(0, 10));
 
   if (isManager) {
@@ -35,7 +39,7 @@ export default async function DashboardPage() {
     supabase.from("services").select("id, category, is_active"),
   ]);
 
-  const allAppointments = (appointments as Appointment[]) ?? [];
+  const allAppointments = (appointments as AppointmentWithService[]) ?? [];
   const allBranches = (branches as Branch[]) ?? [];
   const totalServices = (services as Service[] | null) ?? [];
   
@@ -58,10 +62,18 @@ export default async function DashboardPage() {
     .filter((a) => a.status === "completed" || a.status === "confirmed")
     .reduce((sum, a) => sum + (a.price_ghs ?? 0), 0);
 
+  const membershipRevenueThisMonth = thisMonthAppointments
+    .filter((a) => a.service?.category === "Membership" && (a.status === "completed" || a.status === "confirmed"))
+    .reduce((sum, a) => sum + (a.price_ghs ?? 0), 0);
+
   const newCustomersThisMonth =
     (customers as { id: string; created_at: string }[] | null)?.filter(
       (c) => c.created_at >= startOfMonth(now).toISOString()
     ).length ?? 0;
+
+  const activeMemberships = allAppointments.filter(
+    (a) => a.service?.category === "Membership" && a.status === "confirmed"
+  ).length;
 
   // Revenue trend — last 6 months
   const monthLabels: string[] = [];
@@ -101,8 +113,8 @@ export default async function DashboardPage() {
       <div className="mt-8 grid gap-5 sm:grid-cols-4">
         <StatCard label="Appointments This Month" value={String(thisMonthAppointments.length)} delta={pendingAppointments > 0 ? `+${pendingAppointments} pending` : undefined} />
         <StatCard label="Revenue This Month" value={formatGHS(revenueThisMonth)} />
+        <StatCard label="Membership Revenue" value={formatGHS(membershipRevenueThisMonth)} />
         <StatCard label="New Customers This Month" value={String(newCustomersThisMonth)} />
-        <StatCard label="Active Services" value={String(serviceCount)} delta={inactiveServices > 0 ? `-${inactiveServices} inactive` : undefined} />
       </div>
       <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         <span className="rounded-full bg-teal-darker/5 px-4 py-2 text-sm font-medium text-teal-darker">{activeBranchCount} active branches</span>
@@ -152,6 +164,18 @@ export default async function DashboardPage() {
               <p className="py-16 text-center text-sm text-muted">No appointments yet this month.</p>
             )}
           </div>
+        </Card>
+      </div>
+      <div className="mt-6 grid gap-5 lg:grid-cols-2">
+        <Card className="p-6">
+          <p className="text-sm font-semibold text-ink">Membership Revenue</p>
+          <p className="mt-3 text-3xl font-semibold text-ink">{formatGHS(membershipRevenueThisMonth)}</p>
+          <p className="mt-2 text-sm text-muted">Revenue from membership activations and renewals this month.</p>
+        </Card>
+        <Card className="p-6">
+          <p className="text-sm font-semibold text-ink">Membership Appointments</p>
+          <p className="mt-3 text-3xl font-semibold text-ink">{String(activeMemberships)}</p>
+          <p className="mt-2 text-sm text-muted">Confirmed membership-related appointments created from subscription payments.</p>
         </Card>
       </div>
 

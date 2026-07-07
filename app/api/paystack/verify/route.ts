@@ -71,7 +71,7 @@ export async function POST(request: Request) {
 
   const planResult = await supabase
     .from("subscription_plans")
-    .select("id")
+    .select("id, price_ghs, name")
     .eq("id", planId)
     .maybeSingle();
 
@@ -82,13 +82,14 @@ export async function POST(request: Request) {
   const renewsAt = new Date();
   renewsAt.setMonth(renewsAt.getMonth() + 1);
 
+  const startedAt = new Date().toISOString().slice(0, 10);
   const insertSubscription = await supabase
     .from("subscriptions")
     .insert({
       customer_id: customerId,
       plan_id: planId,
       status: "active",
-      started_at: new Date().toISOString().slice(0, 10),
+      started_at: startedAt,
       renews_at: renewsAt.toISOString().slice(0, 10),
       payment_ref: data.data.reference,
       notes: `Paystack transaction ${data.data.reference}`,
@@ -98,6 +99,88 @@ export async function POST(request: Request) {
 
   if (insertSubscription.error || !insertSubscription.data) {
     return NextResponse.json({ error: "Unable to record subscription." }, { status: 500 });
+  }
+
+  const updateCustomer = await supabase
+    .from("customers")
+    .update({ is_member: true, membership_started_at: startedAt })
+    .eq("id", customerId);
+
+  if (updateCustomer.error) {
+    return NextResponse.json({ error: "Unable to update customer membership status." }, { status: 500 });
+  }
+
+  const customerBranchResult = await supabase
+    .from("customers")
+    .select("preferred_branch_id")
+    .eq("id", customerId)
+    .single();
+
+  const preferredBranchId = (customerBranchResult.data as any)?.preferred_branch_id ?? null;
+
+  let branchId = preferredBranchId;
+  if (!branchId) {
+    const branchResult = await supabase
+      .from("branches")
+      .select("id")
+      .eq("is_active", true)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    branchId = (branchResult.data as any)?.id ?? null;
+  }
+
+  if (!branchId) {
+    return NextResponse.json(
+      { error: "Unable to determine a branch for the membership appointment." },
+      { status: 500 }
+    );
+  }
+
+  const membershipServiceName = "Smile Club Membership";
+  const existingService = await supabase
+    .from("services")
+    .select("id")
+    .eq("name", membershipServiceName)
+    .maybeSingle();
+
+  let membershipServiceId = (existingService.data as any)?.id ?? null;
+  if (!membershipServiceId) {
+    const createdService = await supabase
+      .from("services")
+      .insert({
+        name: membershipServiceName,
+        description: `Membership activation for ${planResult.data.name}`,
+        category: "Membership",
+        price_ghs: planResult.data.price_ghs,
+        duration_minutes: 0,
+        is_active: true,
+      })
+      .select("id")
+      .single();
+
+    if (createdService.error || !createdService.data) {
+      return NextResponse.json({ error: "Unable to create membership service record." }, { status: 500 });
+    }
+
+    membershipServiceId = createdService.data.id;
+  }
+
+  const appointmentTime = new Date().toTimeString().slice(0, 8);
+  const { error: appointmentError } = await supabase.from("appointments").insert({
+    customer_id: customerId,
+    service_id: membershipServiceId,
+    branch_id: branchId,
+    appointment_date: startedAt,
+    appointment_time: appointmentTime,
+    status: "confirmed",
+    price_ghs: planResult.data.price_ghs,
+    notes: `Membership payment ${data.data.reference}`,
+  });
+
+  if (appointmentError) {
+    return NextResponse.json({ error: "Unable to record membership appointment." }, { status: 500 });
   }
 
   return NextResponse.json({ success: true, subscriptionId: insertSubscription.data.id });

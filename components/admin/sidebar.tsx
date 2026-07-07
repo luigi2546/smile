@@ -12,6 +12,7 @@ import {
   Stethoscope,
   MessageSquareText,
   CreditCard,
+  DollarSign,
   Settings,
   UserCircle,
   LogOut,
@@ -25,6 +26,7 @@ const nav = [
   { href: "/admin/branches", label: "Branches", icon: Building2 },
   { href: "/admin/services", label: "Services", icon: Stethoscope },
   { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard },
+  { href: "/admin/transactions", label: "Transactions", icon: DollarSign },
   { href: "/admin/sms", label: "Bulk SMS", icon: MessageSquareText },
 ];
 
