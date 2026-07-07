@@ -5,7 +5,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { formatGHS } from "@/lib/utils";
 import type { Branch, Service } from "@/lib/types";
 import Link from "next/link";
-import { Droplet, Sparkles, Brush, Smile, MapPin, ShieldCheck, Gift, Star } from "lucide-react";
+import { Droplet, Sparkles, Brush, Smile, MapPin, ShieldCheck, Gift, Star, Instagram, Facebook, MessageSquare, Youtube, Globe } from "lucide-react";
 
 const serviceIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "Teeth Whitening": Droplet,
@@ -54,7 +54,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="bg-teal-darker text-white">
+      <section className="bg-teal-darker text-white min-h-[72vh] lg:min-h-[75vh]">
         <Navbar />
 
         <div className="mx-auto max-w-6xl px-6 py-24 lg:flex lg:items-center lg:justify-between">
@@ -104,6 +104,43 @@ export default async function HomePage() {
                 </div>
               </div>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#f4faf9] py-12">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="mb-6 text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-teal">Stay connected</p>
+            <h2 className="mt-3 font-serif text-3xl font-bold text-ink">Follow Smile Center on social media</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-muted">
+              Discover tips, promotions, and smile inspiration on our social channels.
+            </p>
+          </div>
+
+          <div className="overflow-hidden rounded-[2rem] border border-surface-strong bg-white px-3 py-4 shadow-sm">
+            <div className="grid grid-cols-5 gap-2">
+              {[
+                { label: "Instagram", Icon: Instagram, color: "from-pink-500 via-purple-500 to-orange-400", href: "https://instagram.com/SmileCenterGH" },
+                { label: "Facebook", Icon: Facebook, color: "from-blue-600 to-blue-400", href: "https://facebook.com/SmileCenterGH" },
+                { label: "WhatsApp", Icon: MessageSquare, color: "from-emerald-600 to-emerald-400", href: "https://wa.me/your-number" },
+                { label: "TikTok", Icon: Globe, color: "from-slate-900 via-slate-700 to-black", href: "https://tiktok.com/@SmileCenterGH" },
+                { label: "YouTube", Icon: Youtube, color: "from-red-600 to-red-400", href: "https://youtube.com/SmileCenterGH" },
+              ].map((item, index) => (
+                <a
+                  key={`${item.label}-${index}`}
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex items-center gap-2 rounded-full border border-slate-200 bg-slate-950/95 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-900/95"
+                >
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br ${item.color} text-white shadow-lg shadow-slate-200/20`}>
+                    <item.Icon className="h-4 w-4" />
+                  </div>
+                  <span className="truncate">@SmileCenterGH</span>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </section>

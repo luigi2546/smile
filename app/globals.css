@@ -61,6 +61,30 @@ section {
   position: relative;
 }
 
+.marquee {
+  display: flex;
+  gap: 1rem;
+  animation: marquee 24s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .shadow-card {
   box-shadow: var(--shadow);
 }

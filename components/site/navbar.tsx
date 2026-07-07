@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/primitives";
 import { useEffect, useState } from "react";
 
 const links = [
+  { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
   { href: "/branches", label: "Branches" },
   { href: "/membership", label: "Membership" },
