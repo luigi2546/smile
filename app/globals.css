@@ -88,3 +88,21 @@ section {
 .shadow-card {
   box-shadow: var(--shadow);
 }
+
+/* Gentle floating animation for hero image */
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-float {
+  animation: float 3.5s ease-in-out infinite;
+  will-change: transform;
+}

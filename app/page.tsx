@@ -3,7 +3,7 @@ import { Footer } from "@/components/site/footer";
 import { Button, Card, Badge } from "@/components/ui/primitives";
 import { createServiceClient } from "@/lib/supabase/service";
 import { formatGHS } from "@/lib/utils";
-import type { Branch, Service } from "@/lib/types";
+import type { Service } from "@/lib/types";
 import Link from "next/link";
 import { Droplet, Sparkles, Brush, Smile, MapPin, ShieldCheck, Gift, Star, Instagram, Facebook, MessageSquare, Youtube, Globe } from "lucide-react";
 
@@ -47,10 +47,7 @@ const testimonialCards = [
 
 export default async function HomePage() {
   const supabase = createServiceClient();
-  const [{ data: services }, { data: branches }] = await Promise.all([
-    supabase.from("services").select("*").eq("is_active", true).limit(4),
-    supabase.from("branches").select("*").eq("is_active", true),
-  ]);
+  const { data: services } = await supabase.from("services").select("*").eq("is_active", true).limit(4);
 
   return (
     <>
@@ -80,67 +77,51 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-14 lg:mt-0 lg:w-[38%]">
-            <Card className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/10">
-              <div className="space-y-6">
-                <p className="text-sm uppercase tracking-[0.32em] text-teal">Featured care</p>
-                <h2 className="text-3xl font-bold text-white">Smile makeover package</h2>
-                <p className="text-sm text-white/70">
-                  A premium bundle for brighter, healthier teeth plus consultation support.
-                </p>
-
-                <div className="grid gap-3 rounded-3xl bg-white/5 p-5 text-white/75">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Consultation</span>
-                    <span>GHS 100</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Whitening</span>
-                    <span>GHS 450</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Aftercare support</span>
-                    <span>Included</span>
-                  </div>
-                </div>
+            <div className="flex justify-center lg:justify-end mb-6">
+              <div className="rounded-2xl bg-white/10 p-3 shadow-lg">
+                <img src="/hero-tooth.png" alt="Tooth illustration" className="w-56 sm:w-72 animate-float block" />
               </div>
-            </Card>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-[#f4faf9] py-12">
+      <section className="bg-[#f4faf9] py-14">
         <div className="mx-auto max-w-6xl px-6">
-          <div className="mb-6 text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-teal">Stay connected</p>
-            <h2 className="mt-3 font-serif text-3xl font-bold text-ink">Follow Smile Center on social media</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-sm text-muted">
-              Discover tips, promotions, and smile inspiration on our social channels.
+          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.32em] text-teal">Stay connected</p>
+              <h2 className="mt-3 font-serif text-3xl font-bold text-ink">Follow Smile Center on social media</h2>
+            </div>
+            <p className="max-w-xl text-sm text-muted">
+              Discover promotions, smile tips, and clinic updates on your favorite channels.
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-[2rem] border border-surface-strong bg-white px-3 py-4 shadow-sm">
-            <div className="grid grid-cols-5 gap-2">
-              {[
-                { label: "Instagram", Icon: Instagram, color: "from-pink-500 via-purple-500 to-orange-400", href: "https://instagram.com/SmileCenterGH" },
-                { label: "Facebook", Icon: Facebook, color: "from-blue-600 to-blue-400", href: "https://facebook.com/SmileCenterGH" },
-                { label: "WhatsApp", Icon: MessageSquare, color: "from-emerald-600 to-emerald-400", href: "https://wa.me/your-number" },
-                { label: "TikTok", Icon: Globe, color: "from-slate-900 via-slate-700 to-black", href: "https://tiktok.com/@SmileCenterGH" },
-                { label: "YouTube", Icon: Youtube, color: "from-red-600 to-red-400", href: "https://youtube.com/SmileCenterGH" },
-              ].map((item, index) => (
-                <a
-                  key={`${item.label}-${index}`}
-                  href={item.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group flex items-center gap-2 rounded-full border border-slate-200 bg-slate-950/95 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-900/95"
-                >
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br ${item.color} text-white shadow-lg shadow-slate-200/20`}>
-                    <item.Icon className="h-4 w-4" />
-                  </div>
-                  <span className="truncate">@SmileCenterGH</span>
-                </a>
-              ))}
-            </div>
+          <div className="grid gap-3 sm:grid-cols-5">
+            {[
+              { label: "Instagram", Icon: Instagram, color: "from-pink-500 via-purple-500 to-orange-400", href: "https://instagram.com/SmileCenterGH" },
+              { label: "Facebook", Icon: Facebook, color: "from-blue-600 to-blue-400", href: "https://facebook.com/SmileCenterGH" },
+              { label: "WhatsApp", Icon: MessageSquare, color: "from-emerald-600 to-emerald-400", href: "https://wa.me/your-number" },
+              { label: "TikTok", Icon: Globe, color: "from-slate-900 via-slate-700 to-black", href: "https://tiktok.com/@SmileCenterGH" },
+              { label: "YouTube", Icon: Youtube, color: "from-red-600 to-red-400", href: "https://youtube.com/SmileCenterGH" },
+            ].map((item, index) => (
+              <a
+                key={`${item.label}-${index}`}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                className="group flex items-center gap-3 rounded-3xl border border-slate-200 bg-white px-4 py-3 transition hover:-translate-y-0.5 hover:border-teal hover:bg-teal-50"
+              >
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${item.color} text-white`}>
+                  <item.Icon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{item.label}</p>
+                  <p className="truncate text-sm font-semibold text-ink">@SmileCenterGH</p>
+                </div>
+              </a>
+            ))}
           </div>
         </div>
       </section>
@@ -204,7 +185,7 @@ export default async function HomePage() {
               <p className="text-sm font-semibold uppercase tracking-wide text-teal">Booking made simple</p>
               <h2 className="mt-3 font-serif text-4xl font-bold text-ink">Start your visit in three easy steps.</h2>
               <p className="mt-4 max-w-xl text-sm text-muted">
-                Choose a service, book a branch, and confirm your appointment in minutes.
+                Choose a service, pick a time, and confirm your appointment in minutes.
               </p>
 
               <div className="mt-8">
@@ -215,7 +196,7 @@ export default async function HomePage() {
             <div className="grid gap-4">
               {[
                 { label: "Choose service", description: "Whitening, cleaning or a smile makeover." },
-                { label: "Pick a location", description: "Book at the branch nearest you." },
+                { label: "Pick a location", description: "Choose the clinic that works best for you." },
                 { label: "Confirm visit", description: "Get instant appointment confirmation." },
               ].map((item) => (
                 <Card key={item.label} className="p-6">
@@ -225,31 +206,6 @@ export default async function HomePage() {
               ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-teal">Branches</p>
-            <h2 className="mt-2 font-serif text-3xl font-bold text-ink">Find a convenient location.</h2>
-          </div>
-          <Link href="/branches" className="text-sm font-medium text-teal-darker hover:underline">
-            All branches →
-          </Link>
-        </div>
-
-        <div className="mt-10 grid gap-5 md:grid-cols-4">
-          {(branches as Branch[] | null)?.map((branch) => (
-            <Card key={branch.id} className="p-6 transition hover:-translate-y-1 hover:shadow-lg">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-darker/5 text-teal-darker">
-                <MapPin className="h-5 w-5" />
-              </div>
-              <p className="mt-4 font-semibold text-ink">{branch.name}</p>
-              <p className="mt-2 text-sm text-muted">{branch.address}</p>
-              {branch.phone && <p className="mt-4 text-sm font-semibold text-teal-darker">{branch.phone}</p>}
-            </Card>
-          ))}
         </div>
       </section>
 

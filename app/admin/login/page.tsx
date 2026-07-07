@@ -22,27 +22,59 @@ function LoginForm() {
   const [state, formAction] = useFormState(login, initialState);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-teal-darker px-6">
-      <Card className="w-full max-w-sm p-8">
-        <p className="font-serif text-xl font-bold text-ink">Smile Center GH</p>
-        <p className="mt-1 text-sm text-muted">Staff &amp; Admin Login</p>
+    <div className="relative min-h-screen overflow-hidden bg-teal-darker px-6 py-10 text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.22),_transparent_25%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.18),_transparent_20%)]" />
+      <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-10 lg:flex-row lg:items-center">
+        <section className="flex-1 rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/15 backdrop-blur-xl lg:p-12">
+          <div className="max-w-lg">
+            <p className="text-sm uppercase tracking-[0.35em] text-cyan-200">Admin dashboard</p>
+            <h1 className="mt-6 text-4xl font-bold leading-tight text-white sm:text-5xl">
+              Welcome back to Smile Center GH.
+            </h1>
+            <p className="mt-6 text-base leading-7 text-slate-200 sm:text-lg">
+              Manage appointments, customers, services, and subscriptions from one elegant staff portal.
+            </p>
 
-        <form action={formAction} className="mt-6 space-y-4">
-          <input type="hidden" name="next" value={next} />
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required placeholder="you@smilecentergh.com" />
+            <div className="mt-10 grid gap-4 text-sm sm:grid-cols-2">
+              {[
+                "Quick appointment review",
+                "Customer and branch tools",
+                "Secure staff authentication",
+                "Real-time operational insights",
+              ].map((item) => (
+                <div key={item} className="rounded-3xl border border-white/10 bg-white/5 p-4 text-slate-100 shadow-sm">
+                  {item}
+                </div>
+              ))}
+            </div>
           </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" name="password" type="password" required />
-          </div>
-          {state?.error && (
-            <p className="rounded-lg bg-red-50 px-3.5 py-2.5 text-sm text-red-700">{state.error}</p>
-          )}
-          <SubmitButton />
-        </form>
-      </Card>
+        </section>
+
+        <section className="flex-1">
+          <Card className="mx-auto max-w-md border border-white/10 bg-slate-950/90 p-8 shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <div className="mb-8">
+              <p className="font-serif text-3xl font-bold text-white">Sign in</p>
+              <p className="mt-2 text-sm text-slate-300">Enter your staff credentials to access the admin console.</p>
+            </div>
+
+            <form action={formAction} className="space-y-4">
+              <input type="hidden" name="next" value={next} />
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" required placeholder="you@smilecentergh.com" />
+              </div>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" name="password" type="password" required />
+              </div>
+              {state?.error && (
+                <p className="rounded-2xl bg-red-500/10 px-3.5 py-2.5 text-sm text-red-200">{state.error}</p>
+              )}
+              <SubmitButton />
+            </form>
+          </Card>
+        </section>
+      </div>
     </div>
   );
 }
