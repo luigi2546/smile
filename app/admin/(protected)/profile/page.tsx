@@ -9,6 +9,7 @@ export default async function ProfilePage() {
   } = await supabase.auth.getUser();
 
   const staff = await getStaffProfile();
+  const displayName = staff?.full_name ?? user?.email ?? "Staff Member";
 
   return (
     <div>
@@ -31,7 +32,7 @@ export default async function ProfilePage() {
           {/* Avatar card */}
           <div className="rounded-[1.75rem] border border-teal/20 bg-white p-8 shadow-soft text-center">
             <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-teal-darker text-3xl font-bold text-white shadow-lg">
-              {(staff?.full_name ?? "?")
+              {displayName
                 .split(" ")
                 .map((n) => n[0])
                 .join("")
@@ -39,7 +40,7 @@ export default async function ProfilePage() {
                 .toUpperCase()}
             </div>
             <h2 className="mt-4 font-serif text-xl font-bold text-ink">
-              {staff?.full_name ?? "Staff Member"}
+              {displayName}
             </h2>
             <p className="mt-1 text-sm capitalize text-muted">
               {(staff?.role ?? "staff").replace("_", " ")}

@@ -122,38 +122,48 @@ alter table reminders enable row level security;
 alter table staff_profiles enable row level security;
 
 -- Public (anon) can read active branches & services — needed for the public website
+drop policy if exists "public can view active branches" on branches;
 create policy "public can view active branches" on branches
   for select using (is_active = true);
 
+drop policy if exists "public can view active services" on services;
 create policy "public can view active services" on services
   for select using (is_active = true);
 
 -- Public (anon) can INSERT a new customer + appointment via the booking flow,
 -- but cannot read/update/delete other people's records.
+drop policy if exists "public can create a customer record" on customers;
 create policy "public can create a customer record" on customers
   for insert with check (true);
 
+drop policy if exists "public can create an appointment" on appointments;
 create policy "public can create an appointment" on appointments
   for insert with check (true);
 
 -- Authenticated staff (any row in staff_profiles) can do everything.
+drop policy if exists "staff full access branches" on branches;
 create policy "staff full access branches" on branches
-  for all using (auth.uid() in (select id from staff_profiles));
+  for all using (auth.uid() is not null);
 
+drop policy if exists "staff full access services" on services;
 create policy "staff full access services" on services
-  for all using (auth.uid() in (select id from staff_profiles));
+  for all using (auth.uid() is not null);
 
+drop policy if exists "staff full access customers" on customers;
 create policy "staff full access customers" on customers
-  for all using (auth.uid() in (select id from staff_profiles));
+  for all using (auth.uid() is not null);
 
+drop policy if exists "staff full access appointments" on appointments;
 create policy "staff full access appointments" on appointments
-  for all using (auth.uid() in (select id from staff_profiles));
+  for all using (auth.uid() is not null);
 
+drop policy if exists "staff full access reminders" on reminders;
 create policy "staff full access reminders" on reminders
-  for all using (auth.uid() in (select id from staff_profiles));
+  for all using (auth.uid() is not null);
 
-create policy "staff can view own profile" on staff_profiles
-  for select using (auth.uid() = id or auth.uid() in (select id from staff_profiles where role = 'admin'));
+drop policy if exists "staff can manage own profile" on staff_profiles;
+create policy "staff can manage own profile" on staff_profiles
+  for all using (auth.uid() = id) with check (auth.uid() = id);
 
 -- ---------- STITCH RENDERS ----------
 create table if not exists stitch_renders (
@@ -167,8 +177,9 @@ create table if not exists stitch_renders (
 );
 
 alter table stitch_renders enable row level security;
+drop policy if exists "staff can manage stitch renders" on stitch_renders;
 create policy "staff can manage stitch renders" on stitch_renders
-  for all using (auth.uid() in (select id from staff_profiles));
+  for all using (auth.uid() is not null);
 
 -- ============================================================
 -- SUBSCRIPTION PLANS & MEMBERSHIPS
@@ -219,15 +230,18 @@ alter table subscription_plans enable row level security;
 alter table subscriptions enable row level security;
 
 -- Public can view active plans (for the /membership pricing page)
+drop policy if exists "public can view active plans" on subscription_plans;
 create policy "public can view active plans" on subscription_plans
   for select using (is_active = true);
 
 -- Staff full access
+drop policy if exists "staff full access subscription_plans" on subscription_plans;
 create policy "staff full access subscription_plans" on subscription_plans
-  for all using (auth.uid() in (select id from staff_profiles));
+  for all using (auth.uid() is not null);
 
+drop policy if exists "staff full access subscriptions" on subscriptions;
 create policy "staff full access subscriptions" on subscriptions
-  for all using (auth.uid() in (select id from staff_profiles));
+  for all using (auth.uid() is not null);
 
 -- ---------- SEED PLANS ----------
 insert into subscription_plans (name, description, price_ghs, features)

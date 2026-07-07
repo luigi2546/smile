@@ -8,8 +8,8 @@ import { CalendarCheck, ShieldCheck, Clock } from "lucide-react";
 
 const TRUST_ITEMS = [
   { icon: <CalendarCheck className="h-4 w-4" />, text: "Instant confirmation" },
-  { icon: <ShieldCheck className="h-4 w-4" />, text: "No card required" },
-  { icon: <Clock className="h-4 w-4" />, text: "Free cancellation" },
+  { icon: <ShieldCheck className="h-4 w-4" />, text: "GHS 30 booking fee" },
+  { icon: <Clock className="h-4 w-4" />, text: "MoMo & card accepted" },
 ];
 
 export default async function BookPage({
