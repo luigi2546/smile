@@ -76,6 +76,9 @@ export default async function ContactPage() {
     ((branches as Branch[] | null) ?? []).length > 0
       ? (branches as Branch[])
       : defaultBranches;
+  const primaryMapQuery = encodeURIComponent(
+    "Smile Center GH Dome Pillar 2 K Boat, Accra, Ghana"
+  );
 
   return (
     <>
@@ -264,6 +267,65 @@ export default async function ContactPage() {
       </section>
 
       {/* ── FAQ ────────────────────────────────────────── */}
+      <section className="px-6 pb-20">
+        <div className="mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-[2rem] border border-gray-100 bg-white shadow-xl shadow-slate-900/5">
+            <div className="grid lg:grid-cols-[0.9fr_1.3fr]">
+              <div className="flex flex-col justify-between bg-[#000a54] p-8 text-white">
+                <div>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-300">
+                    <MapPin className="h-3.5 w-3.5" /> Find us
+                  </span>
+                  <h2 className="mt-5 font-serif text-3xl font-bold">
+                    Visit the branch closest to you.
+                  </h2>
+                  <p className="mt-3 text-sm leading-relaxed text-white/65">
+                    Use the map for directions, then book your teeth whitening
+                    session or contact the team before coming in.
+                  </p>
+                </div>
+
+                <div className="mt-8 space-y-3">
+                  {displayedBranches.map((branch) => {
+                    const query = encodeURIComponent(`${branch.name} ${branch.address}`);
+
+                    return (
+                      <a
+                        key={branch.id}
+                        href={`https://www.google.com/maps/search/?api=1&query=${query}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/10 p-4 text-left transition hover:border-amber-300/40 hover:bg-white/15"
+                      >
+                        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-400 text-[#000a54]">
+                          <MapPin className="h-4 w-4" />
+                        </span>
+                        <span>
+                          <span className="block text-sm font-bold">{branch.name}</span>
+                          <span className="mt-1 block text-xs leading-relaxed text-white/60">
+                            {branch.address}
+                          </span>
+                        </span>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="relative min-h-[360px] bg-slate-100">
+                <iframe
+                  title="Smile Center GH branch map"
+                  src={`https://www.google.com/maps?q=${primaryMapQuery}&output=embed`}
+                  className="absolute inset-0 h-full w-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-[#000a54]/[0.03] px-6 py-20">
         <div className="mx-auto max-w-3xl">
           <div className="mb-10 text-center">
