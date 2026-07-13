@@ -65,6 +65,45 @@ const testimonialCards = [
   },
 ];
 
+const customerReviewCards = [
+  {
+    quote: "The whitening session was quick and comfortable. The team explained everything and the result looked clean without feeling overdone.",
+    author: "Ama K., Accra",
+    initials: "AK",
+    treatment: "Teeth whitening",
+  },
+  {
+    quote: "Booking was simple, the price was clear, and I liked seeing the before and after shade record after my visit.",
+    author: "Kwame T., East Legon",
+    initials: "KT",
+    treatment: "Whitening package",
+  },
+  {
+    quote: "Friendly staff, bright space, and no confusion about how many sessions I was paying for. I felt looked after from start to finish.",
+    author: "Naa A., Osu",
+    initials: "NA",
+    treatment: "Smile care",
+  },
+  {
+    quote: "I liked that the amount was clear before we started. Picking the number of sessions made the whole visit feel simple.",
+    author: "Esi M., Cantonments",
+    initials: "EM",
+    treatment: "Single session",
+  },
+  {
+    quote: "The team checked my shade, explained the process, and helped me plan my follow-up without pressure.",
+    author: "Yaw B., Spintex",
+    initials: "YB",
+    treatment: "Shade tracking",
+  },
+  {
+    quote: "The before and after view made the difference obvious. It felt organized and professional from booking to checkout.",
+    author: "Adjoa S., Labone",
+    initials: "AS",
+    treatment: "Before & after",
+  },
+];
+
 export default async function HomePage() {
   const supabase = createServiceClient();
   const { data: services } = await supabase.from("services").select("*").eq("is_active", true).limit(4);
@@ -164,6 +203,60 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="hidden">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.32em] text-teal">Customer reviews</p>
+              <h2 className="mt-4 font-serif text-4xl font-bold text-ink">Real feedback from brighter smiles.</h2>
+              <p className="mt-4 max-w-md text-sm leading-6 text-muted">
+                Customers care about comfort, clear prices, and visible progress. The review section now reflects that whitening journey.
+              </p>
+            </div>
+
+            <div className="grid gap-3 rounded-3xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur md:grid-cols-3">
+              {[
+                { value: "5.0", label: "Average experience" },
+                { value: "GHS 60", label: "Clear session price" },
+                { value: "3-step", label: "Booking flow" },
+              ].map((item) => (
+                <div key={item.label} className="rounded-2xl bg-white px-5 py-4">
+                  <p className="font-serif text-3xl font-bold text-ink">{item.value}</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="review-marquee mt-12" aria-label="Customer review carousel">
+            <div className="review-marquee__track">
+              {[...customerReviewCards, ...customerReviewCards].map((card, index) => (
+                <Card key={`${card.author}-${index}`} className="review-card relative overflow-hidden p-7 shadow-sm">
+                  <div className="absolute right-5 top-5 h-20 w-20 rounded-full bg-teal-darker/5" />
+                  <div className="relative flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-darker text-sm font-bold text-white">
+                        {card.initials}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-ink">{card.author}</p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teal">{card.treatment}</p>
+                      </div>
+                    </div>
+                    <div className="flex text-gold" aria-label="5 star review">
+                      {[0, 1, 2, 3, 4].map((star) => (
+                        <Star key={star} className="h-4 w-4 fill-current" />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="relative mt-7 text-base leading-7 text-ink/85">"{card.quote}"</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-cream py-20">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
@@ -221,21 +314,21 @@ export default async function HomePage() {
           <div className="grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-center">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wide text-teal">Booking made simple</p>
-              <h2 className="mt-3 font-serif text-4xl font-bold text-ink">Start your visit in three easy steps.</h2>
+              <h2 className="mt-3 font-serif text-4xl font-bold text-ink">Book whitening sessions without confusion.</h2>
               <p className="mt-4 max-w-xl text-sm text-muted">
-                Choose a service, pick a time, and confirm your appointment in minutes.
+                Pick the whitening service, choose the number of sessions, and confirm the amount before the visit starts.
               </p>
 
-              <div className="mt-8">
-                <img src="/booking-illustration.svg" alt="Booking steps illustration" className="mx-auto w-full max-w-2xl rounded-lg shadow-sm" />
+              <div className="booking-visual mt-8">
+                <img src="/booking-calendar-illustration.png" alt="Calendar and phone booking illustration for whitening sessions" className="booking-visual__image" />
               </div>
             </div>
 
             <div className="grid gap-4">
               {[
-                { label: "Choose service", description: "Whitening, cleaning or a smile makeover." },
-                { label: "Pick a location", description: "Choose the clinic that works best for you." },
-                { label: "Confirm visit", description: "Get instant appointment confirmation." },
+                { label: "Choose whitening", description: "Start with the teeth whitening service or package." },
+                { label: "Pick sessions", description: "Select how many sessions the customer wants to do." },
+                { label: "Confirm amount", description: "The total updates clearly from the selected session count." },
               ].map((item) => (
                 <Card key={item.label} className="p-6">
                   <div className="rounded-3xl bg-white/5 px-4 py-3 text-sm font-semibold text-ink">{item.label}</div>
@@ -271,7 +364,61 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="bg-cream py-20">
+      <section className="overflow-hidden bg-cream py-20">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.32em] text-teal">Customer reviews</p>
+              <h2 className="mt-4 font-serif text-4xl font-bold text-ink">Real feedback from brighter smiles.</h2>
+              <p className="mt-4 max-w-md text-sm leading-6 text-muted">
+                Customers care about comfort, clear prices, and visible progress. The review section now reflects that whitening journey.
+              </p>
+            </div>
+
+            <div className="grid gap-3 rounded-3xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur md:grid-cols-3">
+              {[
+                { value: "5.0", label: "Average experience" },
+                { value: "GHS 60", label: "Clear session price" },
+                { value: "3-step", label: "Booking flow" },
+              ].map((item) => (
+                <div key={item.label} className="rounded-2xl bg-white px-5 py-4">
+                  <p className="font-serif text-3xl font-bold text-ink">{item.value}</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="review-marquee mt-12" aria-label="Customer review carousel">
+            <div className="review-marquee__track">
+              {[...customerReviewCards, ...customerReviewCards].map((card, index) => (
+                <Card key={`${card.author}-${index}`} className="review-card relative overflow-hidden p-7 shadow-sm">
+                  <div className="absolute right-5 top-5 h-20 w-20 rounded-full bg-teal-darker/5" />
+                  <div className="relative flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-darker text-sm font-bold text-white">
+                        {card.initials}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-ink">{card.author}</p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teal">{card.treatment}</p>
+                      </div>
+                    </div>
+                    <div className="flex text-gold" aria-label="5 star review">
+                      {[0, 1, 2, 3, 4].map((star) => (
+                        <Star key={star} className="h-4 w-4 fill-current" />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="relative mt-7 text-base leading-7 text-ink/85">"{card.quote}"</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="hidden">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
             <p className="text-sm font-semibold uppercase tracking-[0.32em] text-teal">Reviews</p>

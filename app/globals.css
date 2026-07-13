@@ -381,6 +381,71 @@ section {
   box-shadow: var(--shadow);
 }
 
+.booking-visual {
+  position: relative;
+  margin-inline: auto;
+  max-width: 42rem;
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(238, 242, 255, 0.44));
+  padding: clamp(0.5rem, 1.4vw, 0.85rem);
+  box-shadow:
+    0 26px 70px rgba(0, 18, 163, 0.14),
+    0 8px 24px rgba(0, 11, 71, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(14px);
+}
+
+.booking-visual::before {
+  content: "";
+  position: absolute;
+  inset: 1rem;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(circle at 65% 20%, rgba(78, 97, 255, 0.16), transparent 48%);
+  filter: blur(18px);
+}
+
+.booking-visual__image {
+  display: block;
+  width: 100%;
+  border-radius: 1.45rem;
+  box-shadow: 0 12px 28px rgba(0, 11, 71, 0.08);
+}
+
+.review-marquee {
+  position: relative;
+  overflow: hidden;
+  padding-block: 0.35rem 1rem;
+  mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+
+.review-marquee__track {
+  display: flex;
+  width: max-content;
+  gap: 1.25rem;
+  animation: review-loop 42s linear infinite;
+  will-change: transform;
+}
+
+.review-marquee:hover .review-marquee__track {
+  animation-play-state: paused;
+}
+
+.review-card {
+  width: min(82vw, 24rem);
+  flex: 0 0 auto;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.review-card:hover {
+  transform: translateY(-0.25rem);
+  box-shadow: 0 18px 44px rgba(0, 18, 163, 0.12);
+}
+
 /* Gentle floating animation for hero image */
 @keyframes float {
   0% {
@@ -397,6 +462,12 @@ section {
 .animate-float {
   animation: float 3.5s ease-in-out infinite;
   will-change: transform;
+}
+
+@keyframes review-loop {
+  to {
+    transform: translateX(calc(-50% - 0.625rem));
+  }
 }
 
 @keyframes whitening-beam-one {
@@ -537,6 +608,7 @@ section {
   }
 
   .marquee,
+  .review-marquee__track,
   .animate-float,
   .home-hero__beam,
   .home-hero__spark,
@@ -544,6 +616,16 @@ section {
   .home-hero__teeth-stage::after,
   .home-hero__whitening-sweep {
     animation: none;
+  }
+
+  .review-marquee {
+    overflow: visible;
+    mask-image: none;
+  }
+
+  .review-marquee__track {
+    width: auto;
+    flex-wrap: wrap;
   }
 
   .home-hero__teeth-model--after {
