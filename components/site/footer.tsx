@@ -43,7 +43,7 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/branches" className="text-white/70 transition hover:text-white hover:underline">
-                  Branches
+                  Our Location
                 </Link>
               </li>
               <li>

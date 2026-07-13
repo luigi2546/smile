@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell, ChevronDown, LogOut, User, ShieldAlert, Sparkles, MessageSquare } from "lucide-react";
+import { Bell, ChevronDown, LogOut, User, ShieldAlert, Sparkles } from "lucide-react";
 import { initials } from "@/lib/utils";
 import { logout } from "@/app/admin/actions";
 import Link from "next/link";
@@ -16,7 +16,7 @@ type ClinicNotification = {
   title: string;
   desc: string;
   time: string;
-  type: "booking" | "sms" | "alert";
+  type: "booking" | "alert";
   read: boolean;
 };
 
@@ -27,14 +27,6 @@ const MOCK_NOTIFICATIONS: ClinicNotification[] = [
     desc: "Ama Owusu booked Teeth Whitening at Dome Branch.",
     time: "2 min ago",
     type: "booking",
-    read: false,
-  },
-  {
-    id: "2",
-    title: "Bulk SMS Sent",
-    desc: "Campaign successfully delivered to 14 patients.",
-    time: "45 min ago",
-    type: "sms",
     read: false,
   },
   {
@@ -78,8 +70,6 @@ export function Topbar({ fullName, role }: TopbarProps) {
     switch (type) {
       case "booking":
         return <Sparkles className="h-4 w-4 text-teal" />;
-      case "sms":
-        return <MessageSquare className="h-4 w-4 text-amber-600" />;
       default:
         return <ShieldAlert className="h-4 w-4 text-red-600" />;
     }

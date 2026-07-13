@@ -9,7 +9,7 @@ const REMINDER_TYPES: { value: string; label: string }[] = [
   { value: "follow_up", label: "Follow-up" },
   { value: "recall_cleaning", label: "Recall / Cleaning" },
   { value: "birthday", label: "Birthday" },
-  { value: "membership_renewal", label: "Membership Renewal" },
+  { value: "membership_renewal", label: "Package Follow-up" },
   { value: "custom", label: "Custom" },
 ];
 
@@ -214,7 +214,7 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
 
           {/* Subscription section */}
           <div>
-            <h2 className="font-serif text-lg font-bold text-ink">Subscription</h2>
+            <h2 className="font-serif text-lg font-bold text-ink">Whitening Package</h2>
             <Card className="mt-3 p-5">
               {subscription ? (
                 <div className="space-y-3">
@@ -223,7 +223,7 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
                       <p className="text-xs uppercase tracking-wide text-muted mb-0.5">Current Plan</p>
                       <p className="font-semibold text-ink">{(subscription as any).plan?.name ?? "—"}</p>
                       <p className="text-xs text-muted font-mono">
-                        {formatGHS((subscription as any).plan?.price_ghs ?? 0)}/mo
+                        {formatGHS((subscription as any).plan?.price_ghs ?? 0)}
                       </p>
                     </div>
                     <span className="rounded-full bg-teal-darker/10 px-2.5 py-1 text-xs font-semibold text-teal-darker capitalize">
@@ -231,8 +231,8 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
                     </span>
                   </div>
                   <div className="border-t border-teal-darker/10 pt-3">
-                    <p className="text-xs uppercase tracking-wide text-muted mb-0.5">Renews</p>
-                    <p className="text-sm font-semibold text-ink">{subscription.renews_at}</p>
+                    <p className="text-xs uppercase tracking-wide text-muted mb-0.5">Sessions Remaining</p>
+                    <p className="text-sm font-semibold text-ink">{Math.max(0, (subscription as any).sessions_total - (subscription as any).sessions_used)} of {(subscription as any).sessions_total}</p>
                   </div>
                   {(subscription as any).payment_ref && (
                     <div className="border-t border-teal-darker/10 pt-3">
@@ -244,12 +244,12 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
                     href="/admin/subscriptions"
                     className="mt-1 inline-block text-xs font-medium text-teal-darker hover:underline"
                   >
-                    Manage subscriptions →
+                    Manage packages →
                   </a>
                 </div>
               ) : (
                 <div className="text-center">
-                  <p className="text-sm text-muted">No active subscription.</p>
+                  <p className="text-sm text-muted">No active whitening package.</p>
                   <a
                     href="/admin/subscriptions"
                     className="mt-2 inline-block text-xs font-medium text-teal-darker hover:underline"

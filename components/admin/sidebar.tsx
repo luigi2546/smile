@@ -8,9 +8,7 @@ import {
   LayoutDashboard,
   Users,
   CalendarCheck,
-  Building2,
   Stethoscope,
-  MessageSquareText,
   CreditCard,
   DollarSign,
   Settings,
@@ -21,13 +19,11 @@ import { cn } from "@/lib/utils";
 
 const nav = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/appointments", label: "Appointments", icon: CalendarCheck },
+  { href: "/admin/appointments", label: "Whitening Sessions", icon: CalendarCheck },
   { href: "/admin/customers", label: "Customers (CRM)", icon: Users },
-  { href: "/admin/branches", label: "Branches", icon: Building2 },
-  { href: "/admin/services", label: "Services", icon: Stethoscope },
-  { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard },
+  { href: "/admin/services", label: "Treatments", icon: Stethoscope },
+  { href: "/admin/subscriptions", label: "Whitening Packages", icon: CreditCard },
   { href: "/admin/transactions", label: "Transactions", icon: DollarSign },
-  { href: "/admin/sms", label: "Bulk SMS", icon: MessageSquareText },
 ];
 
 const bottomNav = [

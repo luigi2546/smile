@@ -90,24 +90,12 @@ supabase/
   seed.sql      Demo branches, services, customers
 ```
 
-## Stitch / Canva integration
-
-This project supports a minimal server-side integration point for a "Stitch" or Canva-style API that requires an API key. Do NOT commit API keys to the repository.
-
-- Add your key locally in `.env.local` as `STITCH_GOOGLE_API_KEY` (development):
-
-```bash
-echo STITCH_GOOGLE_API_KEY="your-real-key" >> .env.local
-```
-
-- In production, store `STITCH_GOOGLE_API_KEY` in your host's secret store (Vercel/GCP/Netlify).
-
-- A tiny helper lives at `lib/stitch/client.ts` that reads the env var and exposes `stitchFetch()` for server-side calls. It automatically sets the `X-Goog-Api-Key` header so you don't accidentally leak the key to the browser.
-
-- If you want, I can wire up a concrete server action that calls a specific Stitch/Canva endpoint — tell me the endpoint(s) and desired behavior (render image, fetch template list, etc.).
-
-
-
-
 Email: admin@smilecentergh.com
 Password: Admin1234!
+
+
+services
+Teeth Whitening
+Teeth Scaling
+Teeth Polish
+Fixing of Gem Tooth

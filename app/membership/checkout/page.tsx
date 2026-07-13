@@ -66,10 +66,10 @@ export default async function MembershipCheckoutPage({ searchParams }: Props) {
             Checkout
           </span>
           <h1 className="mt-5 font-serif text-5xl font-bold leading-tight text-white sm:text-6xl">
-            Confirm your Smile Club membership
+            Confirm your whitening package
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg text-white/60">
-            You selected the {subscriptionPlan.name} plan. Pay the first month securely to unlock priority care, discounts, and dedicated support.
+            You selected the {subscriptionPlan.name} package with {subscriptionPlan.session_count} whitening sessions.
           </p>
         </div>
       </section>
@@ -109,7 +109,7 @@ export default async function MembershipCheckoutPage({ searchParams }: Props) {
                   <p className="text-xs uppercase tracking-[0.35em] text-amber-300">Ready to pay</p>
                   <p className="mt-4 text-2xl font-semibold">Secure checkout</p>
                   <p className="mt-3 text-sm leading-relaxed text-white/70">
-                    Complete your membership purchase and our team will activate your plan immediately.
+                    Complete your package purchase and our team will activate your sessions immediately.
                   </p>
                 </div>
 
@@ -123,7 +123,7 @@ export default async function MembershipCheckoutPage({ searchParams }: Props) {
                 <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600">
                   <p className="font-semibold text-slate-900">Next step</p>
                   <p className="mt-2">
-                    After you pay, an SMS and email confirmation will be sent and your Smile Club membership will be activated.
+                    After payment, your whitening package will be activated and ready for booking.
                   </p>
                 </div>
               </div>
@@ -132,7 +132,7 @@ export default async function MembershipCheckoutPage({ searchParams }: Props) {
             <div id="payment" className="border-t border-slate-200 p-10">
               <h2 className="font-serif text-2xl font-bold text-slate-900">Payment details</h2>
               <p className="mt-3 text-sm text-slate-600">
-                Complete your membership checkout below to pay for your first month and activate your Smile Club plan.
+                Complete checkout below to activate your prepaid whitening package.
               </p>
               <div className="mt-8 grid gap-8 lg:grid-cols-[1.3fr_0.9fr]">
                 <div className="rounded-[1.5rem] border border-slate-200 bg-white p-8 shadow-sm">
@@ -158,7 +158,7 @@ export default async function MembershipCheckoutPage({ searchParams }: Props) {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button href="/membership" variant="ghost" className="w-full sm:w-auto">
-              Back to membership
+              Back to packages
             </Button>
             <Link href="/contact" className="inline-flex w-full items-center justify-center rounded-2xl bg-[#000a54] px-6 py-3 text-sm font-semibold text-white transition hover:bg-teal-700 sm:w-auto">
               Contact support <ArrowRight className="ml-2 h-4 w-4" />

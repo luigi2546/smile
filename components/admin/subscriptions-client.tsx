@@ -44,8 +44,9 @@ function PlanRow({
       <td className="px-5 py-3.5 font-semibold text-ink">{plan.name}</td>
       <td className="px-5 py-3.5 text-muted">{plan.description ?? "—"}</td>
       <td className="px-5 py-3.5 font-mono font-semibold text-teal-darker">
-        {formatGHS(plan.price_ghs)}/mo
+        {formatGHS(plan.price_ghs)}
       </td>
+      <td className="px-5 py-3.5 text-muted">{plan.session_count} sessions</td>
       <td className="px-5 py-3.5">
         <Badge tone={plan.is_active ? "success" : "neutral"}>
           {plan.is_active ? "Active" : "Inactive"}
@@ -95,19 +96,10 @@ function SubRow({ sub }: { sub: SubscriptionWithRelations }) {
         <td className="px-5 py-3.5">
           <StatusBadge status={sub.status} />
         </td>
-        <td className="px-5 py-3.5 text-sm">
-          {sub.renews_at}
-          {days <= 7 && days >= 0 && (
-            <span className="ml-2 text-xs font-semibold text-amber-600">
-              ({days}d left)
-            </span>
-          )}
-          {days < 0 && (
-            <span className="ml-2 text-xs font-semibold text-red-500">
-              (overdue)
-            </span>
-          )}
+        <td className="px-5 py-3.5 text-sm font-medium text-ink">
+          {Math.max(0, sub.sessions_total - sub.sessions_used)} of {sub.sessions_total} remaining
         </td>
+        <td className="px-5 py-3.5 text-sm text-muted">{formatGHS(sub.amount_paid_ghs)}</td>
         <td className="px-5 py-3.5 font-mono text-xs text-muted">
           {sub.payment_ref ?? "—"}
         </td>
@@ -117,13 +109,13 @@ function SubRow({ sub }: { sub: SubscriptionWithRelations }) {
               onClick={() => setShowRenew(true)}
               className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-teal-darker hover:bg-teal-darker/10"
             >
-              <RefreshCw className="h-3.5 w-3.5" /> Renew
+              <RefreshCw className="h-3.5 w-3.5" /> Add cycle
             </button>
             {sub.status !== "cancelled" && (
               <button
                 disabled={cancelling}
                 onClick={async () => {
-                  if (!confirm("Cancel this subscription?")) return;
+                  if (!confirm("Cancel this customer package?")) return;
                   setCancelling(true);
                   await cancelSubscription(sub.id);
                   setCancelling(false);
@@ -159,7 +151,7 @@ function SubRow({ sub }: { sub: SubscriptionWithRelations }) {
                 type="submit"
                 className="inline-flex items-center gap-1 rounded-lg bg-teal-darker px-3 py-1.5 text-sm font-medium text-white"
               >
-                <CheckCircle2 className="h-4 w-4" /> Confirm Renewal
+                <CheckCircle2 className="h-4 w-4" /> Confirm Package Cycle
               </button>
               <button
                 type="button"
@@ -201,7 +193,7 @@ export function SubscriptionsClient({ plans, subscriptions, customers }: Props) 
       {/* ── Plan Management ─────────────────────────────── */}
       <section className="mb-8">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-serif text-xl font-bold text-ink">Subscription Plans</h2>
+          <h2 className="font-serif text-xl font-bold text-ink">Whitening Packages</h2>
           <button
             onClick={() => setPlanModal("new")}
             className="inline-flex items-center gap-1.5 rounded-xl bg-teal-darker px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-darker/90"
@@ -216,6 +208,7 @@ export function SubscriptionsClient({ plans, subscriptions, customers }: Props) 
                 <th className="px-5 py-3 font-semibold">Plan</th>
                 <th className="px-5 py-3 font-semibold">Description</th>
                 <th className="px-5 py-3 font-semibold">Price</th>
+                <th className="px-5 py-3 font-semibold">Sessions</th>
                 <th className="px-5 py-3 font-semibold">Status</th>
                 <th className="px-5 py-3 font-semibold">Actions</th>
               </tr>
@@ -230,8 +223,8 @@ export function SubscriptionsClient({ plans, subscriptions, customers }: Props) 
               ))}
               {plans.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-muted">
-                    No plans yet. Create one above.
+                  <td colSpan={6} className="px-5 py-10 text-center text-muted">
+                    No packages yet. Create one above.
                   </td>
                 </tr>
               )}
@@ -244,13 +237,13 @@ export function SubscriptionsClient({ plans, subscriptions, customers }: Props) 
       <section>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-serif text-xl font-bold text-ink">
-            Customer Subscriptions
+            Customer Packages
           </h2>
           <button
             onClick={() => setAssignModal(true)}
             className="inline-flex items-center gap-1.5 rounded-xl border border-teal-darker/30 bg-white px-4 py-2 text-sm font-semibold text-teal-darker hover:bg-teal-darker/5"
           >
-            <UserPlus className="h-4 w-4" /> Assign Subscription
+            <UserPlus className="h-4 w-4" /> Assign Package
           </button>
         </div>
 
@@ -278,7 +271,8 @@ export function SubscriptionsClient({ plans, subscriptions, customers }: Props) 
                 <th className="px-5 py-3 font-semibold">Customer</th>
                 <th className="px-5 py-3 font-semibold">Plan</th>
                 <th className="px-5 py-3 font-semibold">Status</th>
-                <th className="px-5 py-3 font-semibold">Renews</th>
+                <th className="px-5 py-3 font-semibold">Sessions Remaining</th>
+                <th className="px-5 py-3 font-semibold">Payment</th>
                 <th className="px-5 py-3 font-semibold">Payment Ref</th>
                 <th className="px-5 py-3 font-semibold">Actions</th>
               </tr>
@@ -289,8 +283,8 @@ export function SubscriptionsClient({ plans, subscriptions, customers }: Props) 
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-5 py-10 text-center text-muted">
-                    No subscriptions found.
+                  <td colSpan={7} className="px-5 py-10 text-center text-muted">
+                    No customer packages found.
                   </td>
                 </tr>
               )}

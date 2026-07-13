@@ -46,7 +46,7 @@ export function AssignSubscriptionModal({
           <div className="flex items-center gap-2">
             <UserCheck className="h-5 w-5 text-teal-darker" />
             <h2 className="font-serif text-lg font-bold text-ink">
-              Assign Subscription
+              Assign Whitening Package
             </h2>
           </div>
           <button onClick={onClose} className="text-muted hover:text-ink">
@@ -76,7 +76,7 @@ export function AssignSubscriptionModal({
           </div>
 
           <div>
-            <Label htmlFor="assign-plan">Subscription Plan</Label>
+            <Label htmlFor="assign-plan">Whitening Package</Label>
             <select
               id="assign-plan"
               name="plan_id"

@@ -50,6 +50,15 @@ export type Appointment = {
   appointment_time: string;
   status: AppointmentStatus;
   price_ghs: number | null;
+  amount_paid_ghs: number;
+  session_number: number;
+  total_sessions: number;
+  shade_before: string | null;
+  shade_after: string | null;
+  follow_up_date: string | null;
+  consent_confirmed: boolean;
+  before_photo_path: string | null;
+  after_photo_path: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -93,6 +102,7 @@ export type SubscriptionPlan = {
   name: string;
   description: string | null;
   price_ghs: number;
+  session_count: number;
   features: string[];
   is_active: boolean;
   created_at: string;
@@ -107,6 +117,9 @@ export type Subscription = {
   renews_at: string;
   cancelled_at: string | null;
   payment_ref: string | null;
+  sessions_total: number;
+  sessions_used: number;
+  amount_paid_ghs: number;
   notes: string | null;
   created_at: string;
   updated_at: string;

@@ -35,12 +35,10 @@ export function BookingWizard({
   services,
   branches,
   defaultServiceId,
-  defaultBranchId,
 }: {
   services: Service[];
   branches: Branch[];
   defaultServiceId?: string;
-  defaultBranchId?: string;
 }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -48,7 +46,7 @@ export function BookingWizard({
   // Step 1
   const [serviceId, setServiceId] = useState(defaultServiceId ?? "");
   // Step 2
-  const [branchId, setBranchId] = useState(defaultBranchId ?? "");
+  const [branchId] = useState(branches[0]?.id ?? "");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   // Step 3
@@ -73,7 +71,7 @@ export function BookingWizard({
 
   const steps = [
     { n: 1, label: "Service" },
-    { n: 2, label: "Branch & Time" },
+    { n: 2, label: "Date & Time" },
     { n: 3, label: "Your Details" },
     { n: 4, label: "Payment" },
   ];
@@ -128,7 +126,7 @@ export function BookingWizard({
             },
           ],
         },
-        onSuccess: async (transaction: { reference: string }) => {
+        callback: async function (transaction: { reference: string }) {
           try {
             const res = await fetch("/api/booking/confirm", {
               method: "POST",
@@ -167,7 +165,7 @@ export function BookingWizard({
             setPaying(false);
           }
         },
-        onCancel: () => {
+        onClose: function () {
           setPaying(false);
         },
       });
@@ -257,30 +255,10 @@ export function BookingWizard({
       {step === 2 && (
         <div>
           <h2 className="text-center font-serif text-2xl font-bold text-ink">
-            Choose branch, date &amp; time
+            Choose your date &amp; time
           </h2>
 
           <div className="mx-auto mt-8 max-w-xl space-y-6">
-            <div>
-              <Label>Branch</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {branches.map((b) => (
-                  <button
-                    key={b.id}
-                    type="button"
-                    onClick={() => setBranchId(b.id)}
-                    className={`rounded-lg border p-3 text-left text-sm transition-colors ${
-                      branchId === b.id
-                        ? "border-teal-darker bg-teal-darker/5 font-medium text-ink"
-                        : "border-teal-darker/10 text-muted hover:border-teal-darker/30"
-                    }`}
-                  >
-                    {b.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <div>
               <Label htmlFor="date">Date</Label>
               <Input
@@ -318,7 +296,7 @@ export function BookingWizard({
               Back
             </Button>
             <Button
-              disabled={!branchId || !date || !time}
+              disabled={!date || !time}
               onClick={() => setStep(3)}
             >
               Continue
@@ -421,7 +399,6 @@ export function BookingWizard({
               <p className="text-sm font-semibold text-ink">Booking Summary</p>
               {[
                 { label: "Service", value: selectedService?.name },
-                { label: "Branch", value: selectedBranch?.name },
                 { label: "Date & Time", value: `${date} at ${time}` },
                 { label: "Patient", value: fullName },
               ].map(({ label, value }) => (

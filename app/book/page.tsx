@@ -15,7 +15,7 @@ const TRUST_ITEMS = [
 export default async function BookPage({
   searchParams,
 }: {
-  searchParams: { service?: string; branch?: string };
+  searchParams: { service?: string };
 }) {
   const supabase = createServiceClient();
   const [{ data: services }, { data: branches }] = await Promise.all([
@@ -44,7 +44,7 @@ export default async function BookPage({
             <span className="text-amber-400">appointment</span>
           </h1>
           <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-white/60">
-            Choose a service, pick a branch and time that suits you — we'll
+            Choose a treatment and a time that suits you — we&apos;ll
             take care of the rest.
           </p>
 
@@ -71,7 +71,6 @@ export default async function BookPage({
               services={activeServices.length > 0 ? activeServices : defaultServices}
               branches={activeBranches.length > 0 ? activeBranches : defaultBranches}
               defaultServiceId={searchParams.service}
-              defaultBranchId={searchParams.branch}
             />
           </div>
         </div>

@@ -1,20 +1,10 @@
 import { getStaffProfile } from "@/lib/supabase/staff-profile";
-import { createServiceClient } from "@/lib/supabase/service";
 import { SettingsClient } from "./settings-client";
-import type { Branch } from "@/lib/types";
 import { ShieldCheck } from "lucide-react";
 
 export default async function SettingsPage() {
   const staff = await getStaffProfile();
   const isAdmin = staff?.role === "admin";
-
-  const supabase = createServiceClient();
-  const { data: branches } = await supabase
-    .from("branches")
-    .select("id, name, is_active")
-    .order("name");
-
-  const allBranches = (branches as Pick<Branch, "id" | "name" | "is_active">[]) ?? [];
 
   return (
     <div>
@@ -51,7 +41,6 @@ export default async function SettingsPage() {
         <SettingsClient
           isAdmin={isAdmin}
           staffRole={staff?.role ?? "staff"}
-          branches={allBranches}
         />
       </div>
     </div>

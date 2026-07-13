@@ -1,7 +1,0 @@
-{
-  "note": "Template - do NOT include secrets in the repo. Set STITCH_GOOGLE_API_KEY as an environment variable.",
-  "example_endpoints": {
-    "canva_render": "https://canva.googleapis.com/v1/...",
-    "other": "https://example.googleapis.com/..."
-  }
-}

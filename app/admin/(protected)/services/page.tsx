@@ -18,8 +18,8 @@ export default async function ServicesAdminPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-teal">Operations</p>
-          <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Services</h1>
-          <p className="mt-1 text-sm text-muted">{activeServices.length} active services available</p>
+          <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Treatments</h1>
+          <p className="mt-1 text-sm text-muted">{activeServices.length} active treatments available</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-wrap gap-2">
@@ -38,7 +38,7 @@ export default async function ServicesAdminPage() {
           <table className="w-full text-left text-sm">
             <thead className="bg-teal-darker/5 text-xs uppercase tracking-wide text-muted">
               <tr>
-                <th className="px-5 py-3 font-semibold">Service</th>
+                <th className="px-5 py-3 font-semibold">Treatment</th>
                 <th className="px-5 py-3 font-semibold">Category</th>
                 <th className="px-5 py-3 font-semibold">Price</th>
                 <th className="px-5 py-3 font-semibold">Duration</th>
@@ -73,7 +73,7 @@ export default async function ServicesAdminPage() {
               {totalServices.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-5 py-10 text-center text-muted">
-                    No services found.
+                    No treatments found.
                   </td>
                 </tr>
               )}

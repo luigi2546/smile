@@ -1,12 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getStaffProfile } from "@/lib/supabase/staff-profile";
-import { Card, Badge } from "@/components/ui/primitives";
+import { Card } from "@/components/ui/primitives";
 import { formatDate, formatTime, formatGHS, statusLabel } from "@/lib/utils";
 import { updateAppointmentStatus } from "@/app/admin/(protected)/appointments/actions";
 import { StatusSelect } from "@/components/admin/status-select";
 import { BookAppointmentModal } from "@/components/admin/book-appointment-modal";
 import type { AppointmentWithRelations, AppointmentStatus } from "@/lib/types";
+import Link from "next/link";
 
 const STATUS_OPTIONS: AppointmentStatus[] = ["pending", "confirmed", "completed", "cancelled", "no_show"];
 
@@ -32,15 +33,13 @@ export default async function AppointmentsPage({
     query = query.eq("branch_id", staff.branch_id);
   }
 
-  const [{ data: appointments }, { data: branches }, { data: services }, { data: customers }] = await Promise.all([
+  const [{ data: appointments }, { data: services }, { data: customers }] = await Promise.all([
     query,
-    serviceSupabase.from("branches").select("id, name").eq("is_active", true).order("name"),
     serviceSupabase.from("services").select("id, name, price_ghs").eq("is_active", true).order("name"),
     serviceSupabase.from("customers").select("id, full_name, phone").order("full_name"),
   ]);
 
   const list = (appointments as unknown as AppointmentWithRelations[]) ?? [];
-  const branchList = (branches as any[]) ?? [];
   const serviceList = (services as any[]) ?? [];
   const customerList = (customers as any[]) ?? [];
 
@@ -49,13 +48,12 @@ export default async function AppointmentsPage({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-teal">Operations</p>
-          <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Appointments</h1>
-          <p className="mt-1 text-sm text-muted">{list.length} appointments</p>
+          <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Whitening Sessions</h1>
+          <p className="mt-1 text-sm text-muted">{list.length} treatment sessions</p>
         </div>
         <BookAppointmentModal
           customers={customerList}
           services={serviceList}
-          branches={branchList}
         />
       </div>
 
@@ -72,9 +70,9 @@ export default async function AppointmentsPage({
             <tr>
               <th className="px-5 py-3 font-semibold">Date &amp; Time</th>
               <th className="px-5 py-3 font-semibold">Customer</th>
-              <th className="px-5 py-3 font-semibold">Service</th>
-              <th className="px-5 py-3 font-semibold">Branch</th>
-              <th className="px-5 py-3 font-semibold">Price</th>
+              <th className="px-5 py-3 font-semibold">Treatment</th>
+              <th className="px-5 py-3 font-semibold">Duration</th>
+              <th className="px-5 py-3 font-semibold">Amount</th>
               <th className="px-5 py-3 font-semibold">Status</th>
             </tr>
           </thead>
@@ -87,12 +85,16 @@ export default async function AppointmentsPage({
                     <span className="text-xs">{formatTime(a.appointment_time)}</span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <p className="font-medium text-ink">{a.customer?.full_name}</p>
+                    <Link href={`/admin/appointments/${a.id}`} className="font-medium text-ink hover:underline">{a.customer?.full_name}</Link>
                     <p className="text-xs text-muted">{a.customer?.phone}</p>
                   </td>
                   <td className="px-5 py-3.5 text-ink">{a.service?.name}</td>
-                  <td className="px-5 py-3.5 text-muted">{a.branch?.name}</td>
-                  <td className="px-5 py-3.5 text-muted">{formatGHS(a.price_ghs)}</td>
+                  <td className="px-5 py-3.5 text-muted">
+                    {a.total_sessions ?? 1} × 5 min
+                    <p className="mt-0.5 text-xs">{(a.total_sessions ?? 1) * 5} minutes total</p>
+                    {a.shade_before && <p className="mt-0.5 text-xs">Shade: {a.shade_before}{a.shade_after ? ` → ${a.shade_after}` : ""}</p>}
+                  </td>
+                  <td className="px-5 py-3.5 font-medium text-ink">{formatGHS(a.price_ghs ?? 0)}</td>
                   <td className="px-5 py-3.5">
                     <StatusSelect action={updateAppointmentStatus} appointmentId={a.id} defaultValue={a.status} options={STATUS_OPTIONS} />
                   </td>
@@ -102,7 +104,7 @@ export default async function AppointmentsPage({
             {list.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-5 py-10 text-center text-muted">
-                  No appointments found.
+                  No whitening sessions found.
                 </td>
               </tr>
             )}

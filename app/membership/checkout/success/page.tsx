@@ -48,10 +48,10 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
             <CheckCircle2 className="h-10 w-10 text-amber-400" />
           </div>
           <h1 className="font-serif text-5xl font-bold leading-tight text-white sm:text-6xl">
-            Membership activated!
+            Whitening package activated!
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg text-white/60">
-            Your Smile Club membership is now active. We have recorded your payment and will contact you with the plan details.
+            Your whitening package is active. Your payment and available sessions have been recorded.
           </p>
         </div>
       </section>
@@ -62,19 +62,19 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-6">
                 <div className="rounded-[1.5rem] bg-slate-950/95 p-8 text-white shadow-lg shadow-slate-950/20">
-                  <p className="text-xs uppercase tracking-[0.35em] text-amber-300">Subscription confirmed</p>
+                  <p className="text-xs uppercase tracking-[0.35em] text-amber-300">Package confirmed</p>
                   <h2 className="mt-4 font-serif text-4xl font-bold">{subscriptionPlan.name}</h2>
                   <p className="mt-3 text-sm text-white/70">{subscriptionPlan.description}</p>
                   <div className="mt-8 flex items-center gap-3 text-white/80">
                     <ShieldCheck className="h-5 w-5" />
-                    <p>{subscription?.status === "active" ? "Active membership" : "Subscription recorded."}</p>
+                    <p>{subscription?.status === "active" ? "Active package" : "Package recorded."}</p>
                   </div>
                 </div>
 
                 <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-6">
-                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Subscription ID</p>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Package ID</p>
                   <p className="mt-2 font-mono text-slate-900">{subscriptionId}</p>
-                  <p className="mt-4 text-sm text-slate-700">You can manage your subscription from the admin dashboard.</p>
+                  <p className="mt-4 text-sm text-slate-700">Your package can be managed from the Smile Center dashboard.</p>
                 </div>
               </div>
 

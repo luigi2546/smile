@@ -102,6 +102,7 @@ export async function addPlan(formData: FormData) {
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const price_ghs = parseFloat(formData.get("price_ghs") as string);
+  const session_count = parseInt(formData.get("session_count") as string, 10);
   const featuresRaw = formData.get("features") as string;
   const features = featuresRaw
     ? featuresRaw.split("\n").map((f) => f.trim()).filter(Boolean)
@@ -111,6 +112,7 @@ export async function addPlan(formData: FormData) {
     name,
     description: description || null,
     price_ghs,
+    session_count,
     features,
   });
 
@@ -124,6 +126,7 @@ export async function editPlan(formData: FormData) {
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const price_ghs = parseFloat(formData.get("price_ghs") as string);
+  const session_count = parseInt(formData.get("session_count") as string, 10);
   const featuresRaw = formData.get("features") as string;
   const features = featuresRaw
     ? featuresRaw.split("\n").map((f) => f.trim()).filter(Boolean)
@@ -131,7 +134,7 @@ export async function editPlan(formData: FormData) {
 
   const { error } = await supabase
     .from("subscription_plans")
-    .update({ name, description: description || null, price_ghs, features })
+    .update({ name, description: description || null, price_ghs, session_count, features })
     .eq("id", id);
 
   if (error) throw new Error(error.message);
@@ -164,6 +167,13 @@ export async function assignSubscription(formData: FormData) {
   const payment_ref = formData.get("payment_ref") as string;
   const notes = formData.get("notes") as string;
 
+  const { data: selectedPlan, error: planError } = await supabase
+    .from("subscription_plans")
+    .select("session_count, price_ghs")
+    .eq("id", plan_id)
+    .single();
+  if (planError || !selectedPlan) throw new Error("Whitening package not found");
+
   // Compute renews_at = started_at + 1 month
   const start = new Date(started_at);
   start.setMonth(start.getMonth() + 1);
@@ -182,6 +192,9 @@ export async function assignSubscription(formData: FormData) {
     started_at,
     renews_at,
     payment_ref: payment_ref || null,
+    sessions_total: selectedPlan.session_count,
+    sessions_used: 0,
+    amount_paid_ghs: selectedPlan.price_ghs,
     notes: notes || null,
     status: "active",
   });
@@ -193,15 +206,6 @@ export async function assignSubscription(formData: FormData) {
     .from("customers")
     .update({ is_member: true, membership_started_at: started_at })
     .eq("id", customer_id);
-
-  await createMembershipAppointment(
-    supabase,
-    customer_id,
-    plan_id,
-    payment_ref || null,
-    started_at,
-    notes || `Membership payment ${payment_ref || "manual"}`
-  );
 
   revalidatePath("/admin/subscriptions");
   revalidatePath(`/admin/customers/${customer_id}`);

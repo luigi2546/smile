@@ -14,24 +14,44 @@ const serviceIcons: Record<string, React.ComponentType<{ className?: string }>> 
   "Smile Makeover": Smile,
 };
 
-// heroStats removed
+const whiteningHighlights = [
+  { label: "Transparent pricing", value: "GHS 60", detail: "per whitening session" },
+  { label: "Session packages", value: "1-10", detail: "sessions booked upfront" },
+  { label: "Treatment tracking", value: "Before & after", detail: "shade and photo records" },
+];
 
 const benefits = [
   {
-    title: "Fast online booking",
-    description: "Reserve your appointment in under 60 seconds.",
+    title: "Built around whitening",
+    description: "Book single sessions or packages without confusing dental extras.",
     icon: Sparkles,
   },
   {
-    title: "Clear pricing",
-    description: "Know your cost up front with no surprises.",
+    title: "Clear amount due",
+    description: "The amount follows the selected number of whitening sessions.",
     icon: ShieldCheck,
   },
   {
-    title: "Follow-up care",
-    description: "Reminders and treatment support keep your smile healthy.",
+    title: "Visible progress",
+    description: "Track shades, photos, visits, and follow-ups in one customer record.",
     icon: Gift,
   },
+];
+
+const bookingSteps = [
+  { label: "Choose sessions", description: "Pick how many whitening sessions the customer wants." },
+  { label: "Confirm amount", description: "Pricing updates from the selected session count." },
+  { label: "Track results", description: "Save shade notes, before photos, after photos, and follow-up dates." },
+];
+
+const packagePerks = ["Session-based pricing", "Before & after records", "Customer history", "Follow-up dates"];
+
+const socialLinks = [
+  { label: "Instagram", Icon: Instagram, color: "from-pink-500 via-purple-500 to-orange-400", href: "https://instagram.com/SmileCenterGH" },
+  { label: "Facebook", Icon: Facebook, color: "from-blue-600 to-blue-400", href: "https://facebook.com/SmileCenterGH" },
+  { label: "WhatsApp", Icon: MessageSquare, color: "from-emerald-600 to-emerald-400", href: "https://wa.me/your-number" },
+  { label: "TikTok", Icon: Globe, color: "from-slate-900 via-slate-700 to-black", href: "https://tiktok.com/@SmileCenterGH" },
+  { label: "YouTube", Icon: Youtube, color: "from-red-600 to-red-400", href: "https://youtube.com/SmileCenterGH" },
 ];
 
 const testimonialCards = [
@@ -51,16 +71,23 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="bg-teal-darker text-white min-h-[72vh] lg:min-h-[75vh]">
+      <section className="home-hero overflow-hidden text-white min-h-[72vh] lg:min-h-[75vh]">
         <Navbar />
+        <div className="home-hero__motion" aria-hidden="true">
+          <span className="home-hero__beam home-hero__beam--one" />
+          <span className="home-hero__beam home-hero__beam--two" />
+          <span className="home-hero__spark home-hero__spark--one" />
+          <span className="home-hero__spark home-hero__spark--two" />
+          <span className="home-hero__spark home-hero__spark--three" />
+        </div>
 
-        <div className="mx-auto max-w-6xl px-6 py-24 lg:flex lg:items-center lg:justify-between">
-          <div className="max-w-2xl">
-            <Badge tone="gold" className="mb-5">Smile Center GH</Badge>
+        <div className="home-hero__grid mx-auto max-w-6xl px-6 pb-20 pt-32 sm:pt-36 lg:flex lg:items-center lg:justify-between lg:pb-24 lg:pt-40">
+          <div className="relative z-10 max-w-2xl">
+            <Badge tone="gold" className="mb-5 border border-white/10 bg-white/90 text-teal-darker shadow-sm">Smile Center GH</Badge>
             <h1 className="font-serif text-5xl font-bold leading-tight tracking-tight text-white sm:text-6xl">
               Trusted dental care with fast online booking.
             </h1>
-            <p className="mt-6 max-w-xl text-lg text-white/75">
+            <p className="mt-6 max-w-xl text-lg text-white/80">
               Book cosmetic and preventive dentistry across Accra with transparent prices, friendly clinicians, and easy scheduling.
             </p>
 
@@ -76,10 +103,21 @@ export default async function HomePage() {
             {/* hero stats removed */}
           </div>
 
-          <div className="mt-14 lg:mt-0 lg:w-[38%]">
+          <div className="relative z-10 mt-14 lg:mt-0 lg:w-[38%]">
             <div className="flex justify-center lg:justify-end mb-6">
-              <div className="rounded-2xl bg-white/10 p-3 shadow-lg">
-                <img src="/hero-tooth.png" alt="Tooth illustration" className="w-56 sm:w-72 animate-float block" />
+              <div className="home-hero__teeth-stage">
+                <img
+                  src="/hero-teeth-3d.png"
+                  alt="3D teeth whitening result"
+                  className="home-hero__teeth-model home-hero__teeth-model--after"
+                />
+                <img
+                  src="/hero-teeth-before.png"
+                  alt=""
+                  aria-hidden="true"
+                  className="home-hero__teeth-model home-hero__teeth-model--before"
+                />
+                <span className="home-hero__whitening-sweep" aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -129,8 +167,8 @@ export default async function HomePage() {
       <section className="bg-cream py-20">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-teal">Why choose Smile Center</p>
-            <h2 className="mt-4 font-serif text-4xl font-bold text-ink">Modern care, clear pricing, and lasting results.</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-teal">Why Smile Center</p>
+            <h2 className="mt-4 font-serif text-4xl font-bold text-ink">A simpler whitening journey from booking to results.</h2>
           </div>
 
           <div className="mt-12 grid gap-5 md:grid-cols-3">
@@ -153,8 +191,8 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-6 py-20">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-teal">Featured services</p>
-            <h2 className="mt-2 font-serif text-3xl font-bold text-ink">Care tailored to your smile.</h2>
+            <p className="text-sm font-semibold uppercase tracking-wide text-teal">Whitening and smile care</p>
+            <h2 className="mt-2 font-serif text-3xl font-bold text-ink">Pick the treatment, choose the sessions, see the amount.</h2>
           </div>
           <Link href="/services" className="text-sm font-medium text-teal-darker hover:underline">
             View all services →

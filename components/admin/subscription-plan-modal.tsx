@@ -44,7 +44,7 @@ export function SubscriptionPlanModal({ plan, onClose }: Props) {
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-gold" />
             <h2 className="font-serif text-lg font-bold text-ink">
-              {isEdit ? "Edit Plan" : "New Subscription Plan"}
+              {isEdit ? "Edit Package" : "New Whitening Package"}
             </h2>
           </div>
           <button onClick={onClose} className="text-muted hover:text-ink">
@@ -54,7 +54,7 @@ export function SubscriptionPlanModal({ plan, onClose }: Props) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="plan-name">Plan Name</Label>
+            <Label htmlFor="plan-name">Package Name</Label>
             <Input
               id="plan-name"
               name="name"
@@ -75,7 +75,7 @@ export function SubscriptionPlanModal({ plan, onClose }: Props) {
           </div>
 
           <div>
-            <Label htmlFor="plan-price">Monthly Price (GHS)</Label>
+            <Label htmlFor="plan-price">Package Price (GHS)</Label>
             <Input
               id="plan-price"
               name="price_ghs"
@@ -86,6 +86,11 @@ export function SubscriptionPlanModal({ plan, onClose }: Props) {
               defaultValue={plan?.price_ghs}
               placeholder="e.g. 120.00"
             />
+          </div>
+
+          <div>
+            <Label htmlFor="plan-sessions">Whitening Sessions</Label>
+            <Input id="plan-sessions" name="session_count" type="number" min="1" required defaultValue={plan?.session_count ?? 1} />
           </div>
 
           <div>

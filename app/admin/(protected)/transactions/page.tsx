@@ -28,23 +28,23 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
   const transactions = [
     ...subscriptionTransactions.map((sub) => ({
       id: sub.id,
-      type: "Membership",
+      type: "Package",
       customer: sub.customer,
-      amount: sub.plan?.price_ghs ?? 0,
+      amount: sub.amount_paid_ghs ?? 0,
       date: sub.created_at,
       status: sub.status,
       reference: sub.payment_ref,
-      description: sub.plan?.name ?? "Membership payment",
+      description: sub.plan?.name ?? "Package payment",
     })),
     ...appointmentTransactions.map((appt) => ({
       id: appt.id,
-      type: appt.service?.category === "Membership" ? "Membership" : "Appointment",
+      type: "Session",
       customer: appt.customer,
-      amount: appt.price_ghs ?? 0,
+      amount: appt.amount_paid_ghs ?? 0,
       date: appt.created_at,
       status: appt.status,
       reference: appt.notes?.match(/transaction\s+(\S+)/i)?.[1] ?? "—",
-      description: appt.service?.name ?? "Appointment payment",
+      description: appt.service?.name ?? "Session payment",
     })),
   ]
     .filter((tx) => {
@@ -72,7 +72,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
           </div>
           <div>
             <h1 className="font-serif text-2xl font-bold text-ink">Transactions</h1>
-            <p className="text-sm text-muted">Review membership and appointment payment activity across the business.</p>
+            <p className="text-sm text-muted">Review package and treatment-session payments actually received.</p>
           </div>
         </div>
         <div className="flex items-start sm:items-end">
@@ -97,8 +97,8 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
               className="w-full rounded-2xl border border-surface-strong bg-surface px-4 py-3 text-sm text-ink focus:border-teal focus-visible:ring-2 focus-visible:ring-teal/15 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             >
               <option value="all">All</option>
-              <option value="Membership">Membership</option>
-              <option value="Appointment">Appointment</option>
+              <option value="Package">Package</option>
+              <option value="Session">Session</option>
             </select>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">

@@ -15,19 +15,15 @@ import {
   ToggleRight,
 } from "lucide-react";
 
-type Branch = { id: string; name: string; is_active: boolean };
-
 type Props = {
   isAdmin: boolean;
   staffRole: string;
-  branches: Branch[];
 };
 
 type NotifSettings = {
   newBooking: boolean;
   appointmentReminders: boolean;
   cancellations: boolean;
-  bulkSmsReports: boolean;
   dailySummary: boolean;
 };
 
@@ -166,13 +162,13 @@ function Toast({
   );
 }
 
-export function SettingsClient({ isAdmin, staffRole, branches }: Props) {
+export function SettingsClient({ isAdmin, staffRole }: Props) {
+  const branches: { id: string; name: string; is_active: boolean }[] = [];
   /* ── Notification prefs ─────────────────── */
   const [notif, setNotif] = useState<NotifSettings>({
     newBooking: true,
     appointmentReminders: true,
     cancellations: true,
-    bulkSmsReports: false,
     dailySummary: true,
   });
   const [notifLoading, setNotifLoading] = useState(false);
@@ -267,13 +263,6 @@ export function SettingsClient({ isAdmin, staffRole, branches }: Props) {
             label="Cancellations & no-shows"
             checked={notif.cancellations}
             onChange={(v) => setNotif((p) => ({ ...p, cancellations: v }))}
-          />
-          <Toggle
-            id="notif_sms"
-            label="Bulk SMS delivery reports"
-            description="Summary after each bulk SMS campaign is delivered."
-            checked={notif.bulkSmsReports}
-            onChange={(v) => setNotif((p) => ({ ...p, bulkSmsReports: v }))}
           />
           <Toggle
             id="notif_daily"
@@ -554,7 +543,7 @@ export function SettingsClient({ isAdmin, staffRole, branches }: Props) {
       </section>
 
       {/* ── Branches quick view (read-only) ────────────────── */}
-      {branches.length > 0 && (
+      {false && (
         <section className="rounded-[1.75rem] border border-teal/20 bg-white p-8 shadow-soft">
           <SectionHeader
             icon={Building2}

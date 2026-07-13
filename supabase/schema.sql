@@ -24,6 +24,7 @@ create table if not exists services (
   description text,
   category text not null default 'General',
   price_ghs numeric(10, 2) not null default 0,
+  session_count int not null default 1,
   duration_minutes int not null default 30,
   is_active boolean not null default true,
   created_at timestamptz not null default now()
@@ -61,10 +62,28 @@ create table if not exists appointments (
   appointment_time time not null,
   status appointment_status not null default 'pending',
   price_ghs numeric(10, 2),
+  amount_paid_ghs numeric(10, 2) not null default 0 check (amount_paid_ghs >= 0),
+  session_number int not null default 1 check (session_number > 0),
+  total_sessions int not null default 1 check (total_sessions > 0),
+  shade_before text,
+  shade_after text,
+  follow_up_date date,
+  consent_confirmed boolean not null default false,
+  before_photo_path text,
+  after_photo_path text,
   notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+alter table appointments add column if not exists amount_paid_ghs numeric(10, 2) not null default 0;
+alter table appointments add column if not exists session_number int not null default 1;
+alter table appointments add column if not exists total_sessions int not null default 1;
+alter table appointments add column if not exists shade_before text;
+alter table appointments add column if not exists shade_after text;
+alter table appointments add column if not exists follow_up_date date;
+alter table appointments add column if not exists consent_confirmed boolean not null default false;
+alter table appointments add column if not exists before_photo_path text;
+alter table appointments add column if not exists after_photo_path text;
 create index if not exists appointments_date_idx on appointments (appointment_date);
 create index if not exists appointments_customer_idx on appointments (customer_id);
 create index if not exists appointments_branch_idx on appointments (branch_id);
@@ -165,22 +184,6 @@ drop policy if exists "staff can manage own profile" on staff_profiles;
 create policy "staff can manage own profile" on staff_profiles
   for all using (auth.uid() = id) with check (auth.uid() = id);
 
--- ---------- STITCH RENDERS ----------
-create table if not exists stitch_renders (
-  id uuid primary key default uuid_generate_v4(),
-  staff_id uuid references auth.users(id) on delete set null,
-  template_id text,
-  storage_url text,
-  preview_url text,
-  meta jsonb,
-  created_at timestamptz not null default now()
-);
-
-alter table stitch_renders enable row level security;
-drop policy if exists "staff can manage stitch renders" on stitch_renders;
-create policy "staff can manage stitch renders" on stitch_renders
-  for all using (auth.uid() is not null);
-
 -- ============================================================
 -- SUBSCRIPTION PLANS & MEMBERSHIPS
 -- ============================================================
@@ -211,12 +214,19 @@ create table if not exists subscriptions (
   renews_at date not null,
   cancelled_at date,
   payment_ref text,
+  sessions_total int not null default 1,
+  sessions_used int not null default 0,
+  amount_paid_ghs numeric(10, 2) not null default 0,
   notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 create index if not exists subscriptions_customer_idx on subscriptions (customer_id);
+alter table subscription_plans add column if not exists session_count int not null default 1;
+alter table subscriptions add column if not exists sessions_total int not null default 1;
+alter table subscriptions add column if not exists sessions_used int not null default 0;
+alter table subscriptions add column if not exists amount_paid_ghs numeric(10, 2) not null default 0;
 create index if not exists subscriptions_plan_idx on subscriptions (plan_id);
 create index if not exists subscriptions_renews_idx on subscriptions (renews_at);
 

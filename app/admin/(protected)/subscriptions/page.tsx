@@ -13,7 +13,7 @@ export default async function SubscriptionsPage() {
         .order("price_ghs"),
       supabase
         .from("subscriptions")
-        .select("*, customer:customers(id, full_name, phone), plan:subscription_plans(id, name, price_ghs)")
+        .select("*, customer:customers(id, full_name, phone), plan:subscription_plans(id, name, price_ghs, session_count)")
         .order("created_at", { ascending: false }),
       supabase
         .from("customers")
@@ -30,10 +30,10 @@ export default async function SubscriptionsPage() {
         </div>
         <div>
           <h1 className="font-serif text-2xl font-bold text-ink">
-            Smile Club Subscriptions
+            Whitening Packages
           </h1>
           <p className="text-sm text-muted">
-            Manage monthly membership plans and customer subscriptions
+            Sell prepaid treatment packages and track remaining customer sessions
           </p>
         </div>
       </div>

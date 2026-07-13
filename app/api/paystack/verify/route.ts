@@ -71,12 +71,17 @@ export async function POST(request: Request) {
 
   const planResult = await supabase
     .from("subscription_plans")
-    .select("id, price_ghs, name")
+    .select("id, price_ghs, name, session_count")
     .eq("id", planId)
     .maybeSingle();
 
   if (!planResult.data) {
     return NextResponse.json({ error: "Subscription plan not found." }, { status: 404 });
+  }
+
+  const expectedAmount = Math.round(Number(planResult.data.price_ghs) * 100);
+  if (Number(data.data.amount) !== expectedAmount) {
+    return NextResponse.json({ error: "Payment amount does not match the selected package." }, { status: 400 });
   }
 
   const renewsAt = new Date();
@@ -92,6 +97,9 @@ export async function POST(request: Request) {
       started_at: startedAt,
       renews_at: renewsAt.toISOString().slice(0, 10),
       payment_ref: data.data.reference,
+      sessions_total: planResult.data.session_count,
+      sessions_used: 0,
+      amount_paid_ghs: Number(data.data.amount) / 100,
       notes: `Paystack transaction ${data.data.reference}`,
     })
     .select("id")
