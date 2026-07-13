@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/primitives";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const links = [
@@ -15,6 +16,11 @@ const links = [
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const router = useRouter();
+
+  const warmRoute = (href: string) => {
+    router.prefetch(href);
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -23,7 +29,7 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-4 text-left">
+    <header className="sticky top-4 z-40 text-left">
       <div className="mx-auto max-w-6xl px-6">
         <div
           className={[
@@ -34,7 +40,13 @@ export function Navbar() {
           ].join(" ")}
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
+          <Link
+            href="/"
+            prefetch
+            onMouseEnter={() => warmRoute("/")}
+            onFocus={() => warmRoute("/")}
+            className="flex items-center gap-3"
+          >
             <div className="relative h-11 w-11 overflow-hidden rounded-2xl shadow-lg shadow-[#000a54]/20">
               <Image
                 src="/logo.svg"
@@ -60,6 +72,9 @@ export function Navbar() {
               <Link
                 key={l.href}
                 href={l.href}
+                prefetch
+                onMouseEnter={() => warmRoute(l.href)}
+                onFocus={() => warmRoute(l.href)}
                 className="text-sm font-semibold text-ink transition hover:text-[#000a54]"
               >
                 {l.label}
@@ -69,7 +84,13 @@ export function Navbar() {
 
           {/* CTA */}
           <div className="hidden md:block">
-            <Button href="/book" size="sm" variant="secondary">
+            <Button
+              href="/book"
+              size="sm"
+              variant="secondary"
+              onMouseEnter={() => warmRoute("/book")}
+              onFocus={() => warmRoute("/book")}
+            >
               Book Appointment
             </Button>
           </div>
