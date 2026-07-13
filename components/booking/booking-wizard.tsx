@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { Button, Card, Input, Label, Textarea } from "@/components/ui/primitives";
@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 const BOOKING_FEE_GHS = 30;
+type PaymentChoice = "full" | "booking_fee";
 
 const iconFor: Record<string, React.ComponentType<{ className?: string }>> = {
   Cosmetic: Sparkles,
@@ -44,9 +45,9 @@ export function BookingWizard({
   const [step, setStep] = useState(1);
 
   // Step 1
-  const [serviceId, setServiceId] = useState(defaultServiceId ?? "");
+  const [serviceId, setServiceId] = useState(defaultServiceId ?? services[0]?.id ?? "");
   // Step 2
-  const [branchId] = useState(branches[0]?.id ?? "");
+  const [branchId, setBranchId] = useState(branches[0]?.id ?? "");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   // Step 3
@@ -55,6 +56,7 @@ export function BookingWizard({
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
   // Step 4
+  const [paymentChoice, setPaymentChoice] = useState<PaymentChoice>("booking_fee");
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
 
@@ -67,7 +69,22 @@ export function BookingWizard({
     [branches, branchId]
   );
 
+  useEffect(() => {
+    if (services.length > 0 && !services.some((s) => s.id === serviceId)) {
+      setServiceId(services[0].id);
+    }
+  }, [serviceId, services]);
+
+  useEffect(() => {
+    if (branches.length > 0 && !branches.some((b) => b.id === branchId)) {
+      setBranchId(branches[0].id);
+    }
+  }, [branchId, branches]);
+
   const timeSlots = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"];
+  const serviceAmountGhs = selectedService?.price_ghs ?? 0;
+  const amountToPayGhs = paymentChoice === "full" ? serviceAmountGhs : BOOKING_FEE_GHS;
+  const balanceDueGhs = paymentChoice === "full" ? 0 : Math.max(serviceAmountGhs - BOOKING_FEE_GHS, 0);
 
   const steps = [
     { n: 1, label: "Service" },
@@ -75,6 +92,47 @@ export function BookingWizard({
     { n: 3, label: "Your Details" },
     { n: 4, label: "Payment" },
   ];
+
+  async function confirmBookingPayment(reference: string) {
+    try {
+      const res = await fetch("/api/booking/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reference,
+          serviceId,
+          branchId,
+          date,
+          time,
+          fullName,
+          phone,
+          email,
+          notes,
+          paymentChoice,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.appointmentId) {
+        setPayError(
+          data.error ??
+            `Booking could not be saved. Please contact us quoting reference: ${reference}`
+        );
+        setPaying(false);
+        return;
+      }
+
+      router.push(
+        `/book/success?ref=${data.appointmentId.slice(0, 8)}&pref=${reference}&paid=${paymentChoice}`
+      );
+    } catch {
+      setPayError(
+        `Something went wrong saving your booking. Please contact us with your Paystack reference: ${reference}`
+      );
+      setPaying(false);
+    }
+  }
 
   function handlePayment() {
     // Guard: Paystack script may not have loaded yet
@@ -98,72 +156,22 @@ export function BookingWizard({
       const handler = window.PaystackPop.setup({
         key: paystackKey,
         email: paystackEmail,
-        amount: BOOKING_FEE_GHS * 100, // pesewas
+        amount: Math.round(amountToPayGhs * 100), // pesewas
         currency: "GHS",
         ref: `scgh-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        label: "Smile Center GH — Booking Fee",
+        label:
+          paymentChoice === "full"
+            ? "Smile Center GH — Full Payment"
+            : "Smile Center GH — Booking Fee",
         metadata: {
-          custom_fields: [
-            {
-              display_name: "Patient Name",
-              variable_name: "patient_name",
-              value: fullName,
-            },
-            {
-              display_name: "Service",
-              variable_name: "service",
-              value: selectedService?.name ?? "",
-            },
-            {
-              display_name: "Branch",
-              variable_name: "branch",
-              value: selectedBranch?.name ?? "",
-            },
-            {
-              display_name: "Appointment",
-              variable_name: "appt_date",
-              value: `${date} at ${time}`,
-            },
-          ],
+          patientName: fullName,
+          service: selectedService?.name ?? "",
+          branch: selectedBranch?.name ?? "",
+          appointment: `${date} at ${time}`,
+          paymentChoice,
         },
-        callback: async function (transaction: { reference: string }) {
-          try {
-            const res = await fetch("/api/booking/confirm", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                reference: transaction.reference,
-                serviceId,
-                branchId,
-                date,
-                time,
-                fullName,
-                phone,
-                email,
-                notes,
-              }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok || !data.appointmentId) {
-              setPayError(
-                data.error ??
-                  `Booking could not be saved. Please contact us quoting reference: ${transaction.reference}`
-              );
-              setPaying(false);
-              return;
-            }
-
-            router.push(
-              `/book/success?ref=${data.appointmentId.slice(0, 8)}&pref=${transaction.reference}`
-            );
-          } catch {
-            setPayError(
-              `Something went wrong saving your booking. Please contact us with your Paystack reference: ${transaction.reference}`
-            );
-            setPaying(false);
-          }
+        callback: function (transaction: { reference: string }) {
+          confirmBookingPayment(transaction.reference);
         },
         onClose: function () {
           setPaying(false);
@@ -244,10 +252,20 @@ export function BookingWizard({
             })}
           </div>
           <div className="mt-8 flex justify-center">
-            <Button disabled={!serviceId} onClick={() => setStep(2)}>
+            <button
+              type="button"
+              disabled={!selectedService}
+              onClick={() => setStep(2)}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-teal px-5 py-3 font-semibold text-white shadow-soft transition duration-200 hover:bg-teal-dark disabled:pointer-events-none disabled:opacity-50"
+            >
               Continue
-            </Button>
+            </button>
           </div>
+          {!selectedService && (
+            <p className="mt-3 text-center text-sm text-muted">
+              Please choose a service to continue.
+            </p>
+          )}
         </div>
       )}
 
@@ -259,6 +277,24 @@ export function BookingWizard({
           </h2>
 
           <div className="mx-auto mt-8 max-w-xl space-y-6">
+            {branches.length > 1 && (
+              <div>
+                <Label htmlFor="branch">Branch</Label>
+                <select
+                  id="branch"
+                  value={branchId}
+                  onChange={(e) => setBranchId(e.target.value)}
+                  className="w-full rounded-2xl border border-surface-strong bg-surface px-4 py-3 text-sm text-ink shadow-sm transition focus:border-teal focus-visible:ring-2 focus-visible:ring-teal/15 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                >
+                  {branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>
+                      {branch.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div>
               <Label htmlFor="date">Date</Label>
               <Input
@@ -292,16 +328,27 @@ export function BookingWizard({
           </div>
 
           <div className="mt-8 flex justify-center gap-3">
-            <Button variant="ghost" onClick={() => setStep(1)}>
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-surface-strong bg-white px-5 py-3 font-semibold text-ink transition duration-200 hover:bg-surface2"
+            >
               Back
-            </Button>
-            <Button
-              disabled={!date || !time}
+            </button>
+            <button
+              type="button"
+              disabled={!selectedBranch || !date || !time}
               onClick={() => setStep(3)}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-teal px-5 py-3 font-semibold text-white shadow-soft transition duration-200 hover:bg-teal-dark disabled:pointer-events-none disabled:opacity-50"
             >
               Continue
-            </Button>
+            </button>
           </div>
+          {(!selectedBranch || !date || !time) && (
+            <p className="mt-3 text-center text-sm text-muted">
+              Select a date and time to continue.
+            </p>
+          )}
         </div>
       )}
 
@@ -368,16 +415,21 @@ export function BookingWizard({
             </div>
 
             <div className="flex justify-center gap-3 pt-2">
-              <Button type="button" variant="ghost" onClick={() => setStep(2)}>
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-surface-strong bg-white px-5 py-3 font-semibold text-ink transition duration-200 hover:bg-surface2"
+              >
                 Back
-              </Button>
-              <Button
+              </button>
+              <button
                 type="button"
                 disabled={!fullName.trim() || !phone.trim()}
                 onClick={() => setStep(4)}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-teal px-5 py-3 font-semibold text-white shadow-soft transition duration-200 hover:bg-teal-dark disabled:pointer-events-none disabled:opacity-50"
               >
                 Continue to Payment
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -390,7 +442,7 @@ export function BookingWizard({
             Secure your slot
           </h2>
           <p className="mt-2 text-center text-sm text-muted">
-            A small non-refundable booking fee confirms your appointment.
+            Choose whether to pay the full amount now or only secure your slot.
           </p>
 
           {/* Summary card */}
@@ -409,19 +461,65 @@ export function BookingWizard({
               ))}
             </div>
 
-            {/* Fee row */}
+            <div className="space-y-3 p-5">
+              <p className="text-sm font-semibold text-ink">Choose payment option</p>
+              {[
+                {
+                  value: "full" as PaymentChoice,
+                  title: "Pay full amount now",
+                  description: "No booking fee is charged separately.",
+                  amount: serviceAmountGhs,
+                },
+                {
+                  value: "booking_fee" as PaymentChoice,
+                  title: "Pay at clinic",
+                  description: "Pay only the booking fee now. Treatment balance is paid when you come.",
+                  amount: BOOKING_FEE_GHS,
+                },
+              ].map((option) => {
+                const active = paymentChoice === option.value;
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setPaymentChoice(option.value)}
+                    className={`w-full rounded-2xl border p-4 text-left transition ${
+                      active
+                        ? "border-teal-darker bg-teal-darker/5 shadow-sm"
+                        : "border-slate-200 bg-white hover:border-teal-darker/30"
+                    }`}
+                  >
+                    <span className="flex items-start justify-between gap-4">
+                      <span>
+                        <span className="block text-sm font-bold text-ink">{option.title}</span>
+                        <span className="mt-1 block text-xs leading-relaxed text-muted">
+                          {option.description}
+                        </span>
+                      </span>
+                      <span className="shrink-0 font-serif text-lg font-bold text-teal-darker">
+                        {formatGHS(option.amount)}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
             <div className="flex items-center justify-between bg-teal-darker/5 px-5 py-4">
               <div>
                 <p className="text-sm font-semibold text-ink">
-                  Booking fee{" "}
-                  <span className="font-normal text-muted">(non-refundable)</span>
+                  Amount to pay now
                 </p>
                 <p className="mt-0.5 text-xs text-muted">
-                  Service fee of {formatGHS(selectedService?.price_ghs)} paid at
-                  clinic
+                  {paymentChoice === "full"
+                    ? "Full treatment amount, no booking fee."
+                    : `${formatGHS(balanceDueGhs)} due at the clinic.`}
                 </p>
               </div>
-              <p className="text-xl font-bold text-teal-darker">GHS 30.00</p>
+              <p className="text-xl font-bold text-teal-darker">
+                {formatGHS(amountToPayGhs)}
+              </p>
             </div>
           </Card>
 
@@ -462,7 +560,9 @@ export function BookingWizard({
               onClick={handlePayment}
             >
               <Lock className="mr-2 h-4 w-4" />
-              {paying ? "Opening payment…" : "Pay GHS 30 & Confirm Booking"}
+              {paying
+                ? "Opening payment…"
+                : `Pay ${formatGHS(amountToPayGhs)} & Confirm Booking`}
             </Button>
 
             <div className="flex items-center justify-center gap-1.5 text-xs text-muted">

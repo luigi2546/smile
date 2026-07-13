@@ -48,8 +48,8 @@ export default async function AppointmentsPage({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-teal">Operations</p>
-          <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Whitening Sessions</h1>
-          <p className="mt-1 text-sm text-muted">{list.length} treatment sessions</p>
+          <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Appointments</h1>
+          <p className="mt-1 text-sm text-muted">{list.length} appointments</p>
         </div>
         <BookAppointmentModal
           customers={customerList}
@@ -71,7 +71,7 @@ export default async function AppointmentsPage({
               <th className="px-5 py-3 font-semibold">Date &amp; Time</th>
               <th className="px-5 py-3 font-semibold">Customer</th>
               <th className="px-5 py-3 font-semibold">Treatment</th>
-              <th className="px-5 py-3 font-semibold">Duration</th>
+              <th className="px-5 py-3 font-semibold">Sessions</th>
               <th className="px-5 py-3 font-semibold">Amount</th>
               <th className="px-5 py-3 font-semibold">Status</th>
             </tr>
@@ -90,8 +90,7 @@ export default async function AppointmentsPage({
                   </td>
                   <td className="px-5 py-3.5 text-ink">{a.service?.name}</td>
                   <td className="px-5 py-3.5 text-muted">
-                    {a.total_sessions ?? 1} × 5 min
-                    <p className="mt-0.5 text-xs">{(a.total_sessions ?? 1) * 5} minutes total</p>
+                    {a.total_sessions ?? 1}
                     {a.shade_before && <p className="mt-0.5 text-xs">Shade: {a.shade_before}{a.shade_after ? ` → ${a.shade_after}` : ""}</p>}
                   </td>
                   <td className="px-5 py-3.5 font-medium text-ink">{formatGHS(a.price_ghs ?? 0)}</td>
@@ -104,7 +103,7 @@ export default async function AppointmentsPage({
             {list.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-5 py-10 text-center text-muted">
-                  No whitening sessions found.
+                  No appointments found.
                 </td>
               </tr>
             )}

@@ -5,7 +5,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { formatGHS } from "@/lib/utils";
 import type { Service } from "@/lib/types";
 import Link from "next/link";
-import { Droplet, Sparkles, Brush, Smile, MapPin, ShieldCheck, Gift, Star, Instagram, Facebook, MessageSquare, Youtube, Globe } from "lucide-react";
+import { Droplet, Sparkles, Brush, Smile, MapPin, ShieldCheck, Gift, Star, Instagram, Facebook, MessageSquare, Globe } from "lucide-react";
 
 const serviceIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "Teeth Whitening": Droplet,
@@ -45,14 +45,6 @@ const bookingSteps = [
 ];
 
 const packagePerks = ["Session-based pricing", "Before & after records", "Customer history", "Follow-up dates"];
-
-const socialLinks = [
-  { label: "Instagram", Icon: Instagram, color: "from-pink-500 via-purple-500 to-orange-400", href: "https://instagram.com/SmileCenterGH" },
-  { label: "Facebook", Icon: Facebook, color: "from-blue-600 to-blue-400", href: "https://facebook.com/SmileCenterGH" },
-  { label: "WhatsApp", Icon: MessageSquare, color: "from-emerald-600 to-emerald-400", href: "https://wa.me/your-number" },
-  { label: "TikTok", Icon: Globe, color: "from-slate-900 via-slate-700 to-black", href: "https://tiktok.com/@SmileCenterGH" },
-  { label: "YouTube", Icon: Youtube, color: "from-red-600 to-red-400", href: "https://youtube.com/SmileCenterGH" },
-];
 
 const testimonialCards = [
   {
@@ -175,13 +167,12 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-5">
+          <div className="mx-auto grid max-w-5xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { label: "Instagram", Icon: Instagram, color: "from-pink-500 via-purple-500 to-orange-400", href: "https://instagram.com/SmileCenterGH" },
               { label: "Facebook", Icon: Facebook, color: "from-blue-600 to-blue-400", href: "https://facebook.com/SmileCenterGH" },
               { label: "WhatsApp", Icon: MessageSquare, color: "from-emerald-600 to-emerald-400", href: "https://wa.me/your-number" },
               { label: "TikTok", Icon: Globe, color: "from-slate-900 via-slate-700 to-black", href: "https://tiktok.com/@SmileCenterGH" },
-              { label: "YouTube", Icon: Youtube, color: "from-red-600 to-red-400", href: "https://youtube.com/SmileCenterGH" },
             ].map((item, index) => (
               <a
                 key={`${item.label}-${index}`}

@@ -96,7 +96,7 @@ export default async function DashboardPage() {
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-teal">Whitening Operations</p>
           <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Smile Center Dashboard</h1>
-          <p className="mt-1 text-sm text-muted">Manage customers, whitening sessions, payments, and follow-ups.</p>
+          <p className="mt-1 text-sm text-muted">Manage customers, appointments, payments, and follow-ups.</p>
         </div>
         <BookAppointmentModal
           customers={((customers as any[]) ?? []).map(({ id, full_name, phone }) => ({ id, full_name, phone }))}
@@ -109,7 +109,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Sessions Today" value={String(todaysSessions.length)} delta={pendingAppointments > 0 ? `${pendingAppointments} pending` : undefined} />
+        <StatCard label="Appointments Today" value={String(todaysSessions.length)} delta={pendingAppointments > 0 ? `${pendingAppointments} pending` : undefined} />
         <StatCard label="Revenue This Month" value={formatGHS(revenueThisMonth)} />
         <StatCard label="New Customers This Month" value={String(newCustomersThisMonth)} />
         <StatCard label="Completed This Month" value={String(completedThisMonth)} />
@@ -119,8 +119,8 @@ export default async function DashboardPage() {
         <Card className="overflow-hidden">
           <div className="flex items-center justify-between gap-4 border-b border-teal-darker/5 px-6 py-5">
             <div>
-              <h2 className="font-semibold text-ink">Today&apos;s Sessions</h2>
-              <p className="mt-1 text-sm text-muted">Whitening and smile-care appointments scheduled today.</p>
+              <h2 className="font-semibold text-ink">Today&apos;s Appointments</h2>
+              <p className="mt-1 text-sm text-muted">Dental appointments scheduled today.</p>
             </div>
             <Button href="/admin/appointments" variant="secondary" size="sm">View all</Button>
           </div>
@@ -131,7 +131,7 @@ export default async function DashboardPage() {
                   <th className="px-6 py-3 font-semibold">Time</th>
                   <th className="px-6 py-3 font-semibold">Customer</th>
                   <th className="px-6 py-3 font-semibold">Treatment</th>
-                  <th className="px-6 py-3 font-semibold">Duration</th>
+                  <th className="px-6 py-3 font-semibold">Sessions</th>
                   <th className="px-6 py-3 font-semibold">Status</th>
                 </tr>
               </thead>
@@ -144,12 +144,12 @@ export default async function DashboardPage() {
                       <p className="mt-0.5 text-xs text-muted">{session.customer?.phone}</p>
                     </td>
                     <td className="px-6 py-4 text-muted">{session.service?.name ?? "Treatment"}</td>
-                    <td className="px-6 py-4 text-muted">{session.total_sessions ?? 1} × 5 min · {(session.total_sessions ?? 1) * 5} minutes</td>
+                    <td className="px-6 py-4 text-muted">{session.total_sessions ?? 1}</td>
                     <td className="px-6 py-4"><SessionStatus status={session.status} /></td>
                   </tr>
                 ))}
                 {todaysSessions.length === 0 && (
-                  <tr><td colSpan={5} className="px-6 py-12 text-center text-muted">No sessions scheduled today.</td></tr>
+                  <tr><td colSpan={5} className="px-6 py-12 text-center text-muted">No appointments scheduled today.</td></tr>
                 )}
               </tbody>
             </table>

@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 
 const nav = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/appointments", label: "Whitening Sessions", icon: CalendarCheck },
+  { href: "/admin/appointments", label: "Appointments", icon: CalendarCheck },
   { href: "/admin/customers", label: "Customers (CRM)", icon: Users },
   { href: "/admin/services", label: "Treatments", icon: Stethoscope },
   { href: "/admin/subscriptions", label: "Whitening Packages", icon: CreditCard },

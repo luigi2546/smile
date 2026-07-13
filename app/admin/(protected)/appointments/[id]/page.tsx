@@ -31,12 +31,12 @@ export default async function WhiteningSessionPage({ params }: { params: { id: s
   return (
     <div>
       <Link href="/admin/appointments" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-teal-darker hover:underline">
-        <ArrowLeft className="h-4 w-4" /> Back to sessions
+        <ArrowLeft className="h-4 w-4" /> Back to appointments
       </Link>
 
       <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-teal">Whitening Session</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-teal">Appointment</p>
           <h1 className="mt-1 font-serif text-3xl font-bold text-ink">{session.customer?.full_name}</h1>
           <p className="mt-1 text-sm text-muted">
             {session.service?.name} · {formatDate(session.appointment_date)} at {formatTime(session.appointment_time)}
@@ -49,7 +49,7 @@ export default async function WhiteningSessionPage({ params }: { params: { id: s
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2">
         <Card className="p-5"><p className="text-sm text-muted">Total treatment amount</p><p className="mt-2 text-2xl font-semibold tabular-nums text-ink">{formatGHS(session.price_ghs)}</p></Card>
-        <Card className="p-5"><p className="text-sm text-muted">Treatment duration</p><p className="mt-2 text-2xl font-semibold tabular-nums text-ink">{(session.total_sessions ?? 1) * 5} minutes</p><p className="mt-1 text-xs text-muted">{session.total_sessions ?? 1} × 5-minute sessions</p></Card>
+        <Card className="p-5"><p className="text-sm text-muted">Sessions</p><p className="mt-2 text-2xl font-semibold tabular-nums text-ink">{session.total_sessions ?? 1}</p></Card>
       </div>
 
       <Card className="mt-6 p-6">
@@ -68,7 +68,7 @@ export default async function WhiteningSessionPage({ params }: { params: { id: s
               </select>
             </div>
             <input type="hidden" name="sessionNumber" value="1" />
-            <div><Label htmlFor="totalSessions">Number of 5-minute sessions</Label><Input id="totalSessions" name="totalSessions" type="number" min="1" defaultValue={session.total_sessions ?? 1} required /></div>
+            <div><Label htmlFor="totalSessions">Number of sessions</Label><Input id="totalSessions" name="totalSessions" type="number" min="1" defaultValue={session.total_sessions ?? 1} required /></div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">

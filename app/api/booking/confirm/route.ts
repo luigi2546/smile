@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 
 const BOOKING_FEE_GHS = 30;
-const BOOKING_FEE_PESEWAS = BOOKING_FEE_GHS * 100; // Paystack uses smallest currency unit
+type PaymentChoice = "full" | "booking_fee";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
       phone,
       email,
       notes,
+      paymentChoice = "booking_fee",
     } = body;
 
     // Basic validation
@@ -24,7 +25,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
     }
 
-    // 1. Verify the Paystack payment server-side
+    const selectedPaymentChoice: PaymentChoice =
+      paymentChoice === "full" ? "full" : "booking_fee";
+
+    const supabase = createServiceClient();
+
+    // 1. Snapshot the service price at time of booking
+    const { data: service } = await supabase
+      .from("services")
+      .select("price_ghs")
+      .eq("id", serviceId)
+      .single();
+
+    const servicePriceGhs = Number(service?.price_ghs ?? 0);
+    const expectedAmountGhs =
+      selectedPaymentChoice === "full" ? servicePriceGhs : BOOKING_FEE_GHS;
+    const expectedAmountPesewas = Math.round(expectedAmountGhs * 100);
+
+    // 2. Verify the Paystack payment server-side
     const paystackRes = await fetch(
       `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
       {
@@ -44,17 +62,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Guard against tampered amounts (must be at least the booking fee)
-    if (paystackData.data.amount < BOOKING_FEE_PESEWAS) {
+    // Guard against tampered amounts
+    if (Number(paystackData.data.amount) !== expectedAmountPesewas) {
       return NextResponse.json(
         { error: "Incorrect payment amount." },
         { status: 400 }
       );
     }
 
-    const supabase = createServiceClient();
-
-    // 2. Find or create customer record (matched by phone number)
+    // 3. Find or create customer record (matched by phone number)
     const { data: existingCustomer } = await supabase
       .from("customers")
       .select("id")
@@ -86,13 +102,6 @@ export async function POST(req: NextRequest) {
       customerId = newCustomer.id;
     }
 
-    // 3. Snapshot the service price at time of booking
-    const { data: service } = await supabase
-      .from("services")
-      .select("price_ghs")
-      .eq("id", serviceId)
-      .single();
-
     // 4. Create the appointment as confirmed (payment received)
     const { data: appointment, error: appointmentError } = await supabase
       .from("appointments")
@@ -103,11 +112,20 @@ export async function POST(req: NextRequest) {
         appointment_date: date,
         appointment_time: time,
         status: "confirmed",
-        price_ghs: service?.price_ghs ?? null,
+        price_ghs: servicePriceGhs,
+        amount_paid_ghs: expectedAmountGhs,
         payment_ref: reference,
-        booking_fee_ghs: BOOKING_FEE_GHS,
-        notes: notes || null,
-      })
+        booking_fee_ghs: selectedPaymentChoice === "full" ? 0 : BOOKING_FEE_GHS,
+        notes:
+          [
+            notes || null,
+            selectedPaymentChoice === "full"
+              ? `Full payment ${reference}`
+              : `Booking fee payment ${reference}`,
+          ]
+            .filter(Boolean)
+            .join("\n") || null,
+      } as any)
       .select("id")
       .single();
 

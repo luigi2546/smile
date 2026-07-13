@@ -8,7 +8,7 @@ import { CalendarCheck, ShieldCheck, Clock } from "lucide-react";
 
 const TRUST_ITEMS = [
   { icon: <CalendarCheck className="h-4 w-4" />, text: "Instant confirmation" },
-  { icon: <ShieldCheck className="h-4 w-4" />, text: "GHS 30 booking fee" },
+  { icon: <ShieldCheck className="h-4 w-4" />, text: "Full payment or booking fee" },
   { icon: <Clock className="h-4 w-4" />, text: "MoMo & card accepted" },
 ];
 

@@ -135,7 +135,7 @@ export default async function ServicesPage() {
       {/* ── Service Grid ───────────────────────────────── */}
       <section className="relative -mt-10 px-6 pb-24">
         <div className="mx-auto max-w-6xl space-y-12">
-          {Object.entries(grouped).map(([category, items]) => {
+          {[["All services", displayedServices] as const].map(([category, items]) => {
             const cfg = CATEGORY_CONFIG[category] ?? DEFAULT_CAT;
             const CatIcon = CAT_ICONS[category] ?? <Stethoscope className="h-5 w-5" />;
             return (
@@ -150,7 +150,7 @@ export default async function ServicesPage() {
                       {category}
                     </h2>
                     <p className="text-xs text-slate-400">
-                      {items.length} service{items.length > 1 ? "s" : ""}
+                      {displayedServices.length} service{displayedServices.length > 1 ? "s" : ""}
                     </p>
                   </div>
                 </div>
