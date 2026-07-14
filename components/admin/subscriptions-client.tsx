@@ -7,7 +7,8 @@ import { AssignSubscriptionModal } from "@/components/admin/assign-subscription-
 import type { Customer, SubscriptionPlan, SubscriptionWithRelations } from "@/lib/types";
 import { Badge } from "@/components/ui/primitives";
 import { formatGHS } from "@/lib/utils";
-import { Edit2, Power, UserPlus, RefreshCw, XCircle, CheckCircle2 } from "lucide-react";
+import { Edit2, Power, UserPlus, RefreshCw, XCircle, CheckCircle2, Printer } from "lucide-react";
+import Link from "next/link";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -105,6 +106,14 @@ function SubRow({ sub }: { sub: SubscriptionWithRelations }) {
         </td>
         <td className="px-5 py-3.5">
           <div className="flex items-center gap-2">
+            {sub.amount_paid_ghs > 0 && (
+              <Link
+                href={`/admin/transactions/package/${sub.id}/receipt`}
+                className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-teal-darker transition hover:bg-teal-darker/10"
+              >
+                <Printer className="h-3.5 w-3.5" /> Receipt
+              </Link>
+            )}
             <button
               onClick={() => setShowRenew(true)}
               className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-teal-darker hover:bg-teal-darker/10"

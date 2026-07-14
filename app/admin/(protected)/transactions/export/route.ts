@@ -75,7 +75,7 @@ export async function GET(request: Request) {
       amount: appt.price_ghs ?? 0,
       date: appt.created_at,
       status: appt.status,
-      reference: appt.notes?.match(/transaction\s+(\S+)/i)?.[1] ?? "",
+      reference: appt.payment_ref ?? appt.notes?.match(/(?:transaction|payment)\s+(\S+)/i)?.[1] ?? "",
       description: appt.service?.name ?? "Appointment payment",
     })),
   ]

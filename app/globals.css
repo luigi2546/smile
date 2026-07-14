@@ -637,3 +637,29 @@ section {
     display: none;
   }
 }
+
+@media print {
+  @page {
+    size: auto;
+    margin: 12mm;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  .admin-print-hidden,
+  .receipt-print-hidden,
+  .receipt-screen-only {
+    display: none !important;
+  }
+
+  .receipt-print-page {
+    width: 100% !important;
+    max-width: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+}

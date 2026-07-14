@@ -1,7 +1,7 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import { Button, Card, Input, Label } from "@/components/ui/primitives";
 import { formatGHS, formatDate } from "@/lib/utils";
-import { CreditCard } from "lucide-react";
+import { CreditCard, Printer } from "lucide-react";
 
 export default async function TransactionsPage({ searchParams }: { searchParams: { q?: string; type?: string; startDate?: string; endDate?: string } }) {
   const supabase = createServiceClient();
@@ -43,7 +43,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
       amount: appt.amount_paid_ghs ?? 0,
       date: appt.created_at,
       status: appt.status,
-      reference: appt.notes?.match(/transaction\s+(\S+)/i)?.[1] ?? "—",
+      reference: appt.payment_ref ?? appt.notes?.match(/(?:transaction|payment)\s+(\S+)/i)?.[1] ?? "—",
       description: appt.service?.name ?? "Session payment",
     })),
   ]
@@ -120,7 +120,8 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
       </form>
 
       <Card className="overflow-hidden">
-        <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[920px] text-left text-sm">
           <thead className="bg-teal-darker/5 text-xs uppercase tracking-wide text-muted">
             <tr>
               <th className="px-5 py-3 font-semibold">Type</th>
@@ -130,6 +131,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
               <th className="px-5 py-3 font-semibold">Date</th>
               <th className="px-5 py-3 font-semibold">Status</th>
               <th className="px-5 py-3 font-semibold">Reference</th>
+              <th className="px-5 py-3 font-semibold"><span className="sr-only">Actions</span></th>
             </tr>
           </thead>
           <tbody>
@@ -142,17 +144,29 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                 <td className="px-5 py-3.5 text-muted">{formatDate(tx.date.slice(0, 10))}</td>
                 <td className="px-5 py-3.5 text-muted capitalize">{tx.status}</td>
                 <td className="px-5 py-3.5 text-mono text-xs text-ink">{tx.reference ?? "—"}</td>
+                <td className="px-5 py-3.5 text-right">
+                  <Button
+                    href={`/admin/transactions/${tx.type.toLowerCase()}/${tx.id}/receipt`}
+                    variant="ghost"
+                    size="sm"
+                    aria-label={`Print receipt for ${tx.customer?.full_name ?? "transaction"}`}
+                  >
+                    <Printer className="h-4 w-4" />
+                    Receipt
+                  </Button>
+                </td>
               </tr>
             ))}
             {transactions.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-5 py-10 text-center text-muted">
+                <td colSpan={8} className="px-5 py-10 text-center text-muted">
                   No transactions found.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+        </div>
       </Card>
     </div>
   );

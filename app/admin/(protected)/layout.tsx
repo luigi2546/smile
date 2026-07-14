@@ -15,9 +15,13 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
 
   return (
     <div className="flex h-screen overflow-hidden bg-cream">
-      <Sidebar role={role} />
+      <div className="admin-print-hidden">
+        <Sidebar role={role} />
+      </div>
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar fullName={fullName} role={role} />
+        <div className="admin-print-hidden">
+          <Topbar fullName={fullName} role={role} />
+        </div>
         <main className="flex-1 overflow-y-auto">
           <div className="mx-auto max-w-6xl px-8 py-8">{children}</div>
         </main>

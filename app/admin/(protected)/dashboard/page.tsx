@@ -6,6 +6,7 @@ import { Badge, Card, Button } from "@/components/ui/primitives";
 import { BookAppointmentModal } from "@/components/admin/book-appointment-modal";
 import { formatGHS, formatTime, statusLabel } from "@/lib/utils";
 import type { Appointment, AppointmentStatus, Branch, Service } from "@/lib/types";
+import { Printer } from "lucide-react";
 
 type AppointmentWithService = Appointment & {
   service?: Pick<Service, "id" | "name" | "category" | "price_ghs"> | null;
@@ -34,11 +35,17 @@ export default async function DashboardPage() {
     appointmentsQuery = appointmentsQuery.eq("branch_id", staff.branch_id);
   }
 
-  const [{ data: appointments }, { data: customers }, { data: services }, { data: reminders }] = await Promise.all([
+  const [{ data: appointments }, { data: customers }, { data: services }, { data: reminders }, { data: subscriptions }] = await Promise.all([
     appointmentsQuery,
     supabase.from("customers").select("id, full_name, phone, created_at").order("full_name"),
     supabase.from("services").select("id, name, price_ghs, category, is_active").order("name"),
     supabase.from("reminders").select("id, due_date, is_sent").eq("is_sent", false),
+    supabase
+      .from("subscriptions")
+      .select("id, created_at, amount_paid_ghs, payment_ref, customer:customers(full_name), plan:subscription_plans(name)")
+      .gt("amount_paid_ghs", 0)
+      .order("created_at", { ascending: false })
+      .limit(8),
   ]);
 
   const allAppointments = (appointments as AppointmentWithService[]) ?? [];
@@ -72,6 +79,29 @@ export default async function DashboardPage() {
     (reminder) => reminder.due_date <= today
   ).length;
 
+  const recentPayments = [
+    ...allAppointments
+      .filter((appointment) => Number(appointment.amount_paid_ghs ?? 0) > 0)
+      .map((appointment) => ({
+        id: appointment.id,
+        type: "session",
+        customer: appointment.customer?.full_name ?? "Unknown customer",
+        description: appointment.service?.name ?? "Treatment session",
+        amount: Number(appointment.amount_paid_ghs ?? 0),
+        date: appointment.created_at,
+      })),
+    ...(((subscriptions as any[]) ?? []).map((subscription) => ({
+      id: subscription.id,
+      type: "package",
+      customer: subscription.customer?.full_name ?? "Unknown customer",
+      description: subscription.plan?.name ?? "Whitening package",
+      amount: Number(subscription.amount_paid_ghs ?? 0),
+      date: subscription.created_at,
+    }))),
+  ]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 6);
+
   // Revenue trend — last 6 months
   const monthLabels: string[] = [];
   const revenueByMonth: Record<string, number> = {};
@@ -98,14 +128,19 @@ export default async function DashboardPage() {
           <h1 className="mt-1 font-serif text-3xl font-bold text-ink">Smile Center Dashboard</h1>
           <p className="mt-1 text-sm text-muted">Manage customers, appointments, payments, and follow-ups.</p>
         </div>
-        <BookAppointmentModal
-          customers={((customers as any[]) ?? []).map(({ id, full_name, phone }) => ({ id, full_name, phone }))}
-          services={activeServices.map(({ id, name, price_ghs }) => ({ id, name, price_ghs }))}
-          defaultIsNewCustomer
-          defaultServiceId={whiteningService?.id}
-          triggerLabel="Add Customer & Session"
-          title="Add Dental Customer & Session"
-        />
+        <div className="flex flex-wrap items-center gap-3">
+          <Button href="/admin/transactions" variant="secondary">
+            <Printer className="h-4 w-4" /> Receipts
+          </Button>
+          <BookAppointmentModal
+            customers={((customers as any[]) ?? []).map(({ id, full_name, phone }) => ({ id, full_name, phone }))}
+            services={activeServices.map(({ id, name, price_ghs }) => ({ id, name, price_ghs }))}
+            defaultIsNewCustomer
+            defaultServiceId={whiteningService?.id}
+            triggerLabel="Add Customer & Session"
+            title="Add Dental Customer & Session"
+          />
+        </div>
       </div>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -124,32 +159,32 @@ export default async function DashboardPage() {
             </div>
             <Button href="/admin/appointments" variant="secondary" size="sm">View all</Button>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[680px] text-left text-sm">
+          <div>
+            <table className="w-full table-fixed text-left text-sm">
               <thead className="bg-teal-darker/5 text-xs uppercase tracking-wide text-muted">
                 <tr>
-                  <th className="px-6 py-3 font-semibold">Time</th>
-                  <th className="px-6 py-3 font-semibold">Customer</th>
-                  <th className="px-6 py-3 font-semibold">Treatment</th>
-                  <th className="px-6 py-3 font-semibold">Sessions</th>
-                  <th className="px-6 py-3 font-semibold">Status</th>
+                  <th className="w-20 px-4 py-3 font-semibold">Time</th>
+                  <th className="px-4 py-3 font-semibold">Customer</th>
+                  <th className="hidden px-4 py-3 font-semibold lg:table-cell">Treatment</th>
+                  <th className="hidden w-20 px-4 py-3 font-semibold 2xl:table-cell">Sessions</th>
+                  <th className="w-28 px-4 py-3 font-semibold">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {todaysSessions.map((session) => (
                   <tr key={session.id} className="border-t border-teal-darker/5 transition-colors hover:bg-teal-darker/[0.02]">
-                    <td className="px-6 py-4 font-medium tabular-nums text-ink">{formatTime(session.appointment_time)}</td>
-                    <td className="px-6 py-4">
-                      <p className="font-medium text-ink">{session.customer?.full_name ?? "Unknown customer"}</p>
-                      <p className="mt-0.5 text-xs text-muted">{session.customer?.phone}</p>
+                    <td className="px-4 py-4 font-medium tabular-nums text-ink">{formatTime(session.appointment_time)}</td>
+                    <td className="px-4 py-4">
+                      <p className="break-words font-medium text-ink">{session.customer?.full_name ?? "Unknown customer"}</p>
+                      <p className="mt-0.5 break-words text-xs text-muted">{session.customer?.phone}</p>
                     </td>
-                    <td className="px-6 py-4 text-muted">{session.service?.name ?? "Treatment"}</td>
-                    <td className="px-6 py-4 text-muted">{session.total_sessions ?? 1}</td>
-                    <td className="px-6 py-4"><SessionStatus status={session.status} /></td>
+                    <td className="hidden break-words px-4 py-4 text-muted lg:table-cell">{session.service?.name ?? "Treatment"}</td>
+                    <td className="hidden px-4 py-4 text-muted 2xl:table-cell">{session.total_sessions ?? 1}</td>
+                    <td className="px-4 py-4"><SessionStatus status={session.status} /></td>
                   </tr>
                 ))}
                 {todaysSessions.length === 0 && (
-                  <tr><td colSpan={5} className="px-6 py-12 text-center text-muted">No appointments scheduled today.</td></tr>
+                  <tr><td colSpan={5} className="px-4 py-12 text-center text-muted">No appointments scheduled today.</td></tr>
                 )}
               </tbody>
             </table>
@@ -179,6 +214,45 @@ export default async function DashboardPage() {
           <div className="mt-4"><RevenueTrendChart data={revenueTrend} /></div>
         </Card>
       </div>
+
+      <Card className="mt-6 overflow-hidden">
+        <div className="flex flex-col gap-3 border-b border-teal-darker/5 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-semibold text-ink">Recent payments &amp; receipts</h2>
+            <p className="mt-1 text-sm text-muted">Open and print receipts for the latest recorded payments.</p>
+          </div>
+          <Button href="/admin/transactions" variant="secondary" size="sm">View all receipts</Button>
+        </div>
+        <div>
+          <table className="w-full table-fixed text-left text-sm">
+            <thead className="bg-teal-darker/5 text-xs uppercase tracking-wide text-muted">
+              <tr>
+                <th className="px-4 py-3 font-semibold sm:px-6">Customer</th>
+                <th className="hidden px-4 py-3 font-semibold md:table-cell sm:px-6">Payment</th>
+                <th className="w-32 px-4 py-3 font-semibold sm:px-6">Amount</th>
+                <th className="w-28 px-4 py-3 font-semibold sm:px-6">Receipt</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentPayments.map((payment) => (
+                <tr key={`${payment.type}-${payment.id}`} className="border-t border-teal-darker/5">
+                  <td className="break-words px-4 py-4 font-medium text-ink sm:px-6">{payment.customer}</td>
+                  <td className="hidden break-words px-4 py-4 text-muted md:table-cell sm:px-6">{payment.description}</td>
+                  <td className="px-4 py-4 font-semibold tabular-nums text-ink sm:px-6">{formatGHS(payment.amount)}</td>
+                  <td className="px-4 py-4 sm:px-6">
+                    <Button href={`/admin/transactions/${payment.type}/${payment.id}/receipt`} variant="ghost" size="sm">
+                      <Printer className="h-4 w-4" /> Receipt
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+              {recentPayments.length === 0 && (
+                <tr><td colSpan={4} className="px-6 py-10 text-center text-muted">No paid transactions yet.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
     </div>
   );

@@ -6,6 +6,7 @@ import { formatGHS } from "@/lib/utils";
 import { createServiceClient } from "@/lib/supabase/service";
 import type { SubscriptionPlan } from "@/lib/types";
 import { notFound } from "next/navigation";
+import { PaymentReceipt } from "@/components/receipt/payment-receipt";
 
 type Props = {
   searchParams: {
@@ -25,7 +26,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
   const supabase = createServiceClient();
   const [{ data: plan }, { data: subscription }] = await Promise.all([
     supabase.from("subscription_plans").select("*").eq("id", planId).maybeSingle(),
-    supabase.from("subscriptions").select("*").eq("id", subscriptionId).maybeSingle(),
+    supabase.from("subscriptions").select("*, customer:customers(full_name, phone)").eq("id", subscriptionId).maybeSingle(),
   ]);
 
   if (!plan || !subscription) {
@@ -36,7 +37,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
 
   return (
     <>
-      <section className="relative bg-[#000a54] px-6 pb-28 pt-0 text-center">
+      <section className="receipt-screen-only relative bg-[#000a54] px-6 pb-28 pt-0 text-center">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -left-24 -top-24 h-80 w-80 rounded-full bg-amber-400/10 blur-3xl" />
           <div className="absolute -right-24 top-10 h-96 w-96 rounded-full bg-teal-400/10 blur-3xl" />
@@ -56,7 +57,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
         </div>
       </section>
 
-      <section className="relative -mt-10 px-6 pb-24">
+      <section className="receipt-screen-only relative -mt-10 px-6 pb-16">
         <div className="mx-auto max-w-4xl">
           <div className="rounded-[2rem] border border-white/10 bg-white shadow-2xl shadow-slate-900/10 p-10">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
@@ -99,7 +100,21 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
         </div>
       </section>
 
-      <Footer />
+      <section className="px-6 pb-24">
+        <PaymentReceipt
+          receiptNumber={`SC-PKG-${subscription.id.slice(0, 8).toUpperCase()}`}
+          customerName={(subscription as any).customer?.full_name ?? "Customer"}
+          customerPhone={(subscription as any).customer?.phone}
+          description={subscriptionPlan.name}
+          paymentType="Package payment"
+          amount={Number((subscription as any).amount_paid_ghs ?? subscriptionPlan.price_ghs)}
+          date={(subscription as any).created_at}
+          reference={(subscription as any).payment_ref}
+          status="Paid"
+        />
+      </section>
+
+      <div className="receipt-screen-only"><Footer /></div>
     </>
   );
 }

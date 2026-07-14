@@ -51,6 +51,9 @@ export type Appointment = {
   status: AppointmentStatus;
   price_ghs: number | null;
   amount_paid_ghs: number;
+  visit_type: "booking" | "walk_in";
+  payment_method: string | null;
+  payment_ref: string | null;
   session_number: number;
   total_sessions: number;
   shade_before: string | null;

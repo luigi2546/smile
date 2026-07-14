@@ -63,6 +63,9 @@ create table if not exists appointments (
   status appointment_status not null default 'pending',
   price_ghs numeric(10, 2),
   amount_paid_ghs numeric(10, 2) not null default 0 check (amount_paid_ghs >= 0),
+  visit_type text not null default 'booking' check (visit_type in ('booking', 'walk_in')),
+  payment_method text,
+  payment_ref text,
   session_number int not null default 1 check (session_number > 0),
   total_sessions int not null default 1 check (total_sessions > 0),
   shade_before text,
@@ -76,6 +79,9 @@ create table if not exists appointments (
   updated_at timestamptz not null default now()
 );
 alter table appointments add column if not exists amount_paid_ghs numeric(10, 2) not null default 0;
+alter table appointments add column if not exists visit_type text not null default 'booking';
+alter table appointments add column if not exists payment_method text;
+alter table appointments add column if not exists payment_ref text;
 alter table appointments add column if not exists session_number int not null default 1;
 alter table appointments add column if not exists total_sessions int not null default 1;
 alter table appointments add column if not exists shade_before text;

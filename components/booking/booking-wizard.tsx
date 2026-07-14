@@ -124,7 +124,7 @@ export function BookingWizard({
       }
 
       router.push(
-        `/book/success?ref=${data.appointmentId.slice(0, 8)}&pref=${reference}&paid=${paymentChoice}`
+        `/book/success?appointmentId=${data.appointmentId}&ref=${data.appointmentId.slice(0, 8)}&pref=${encodeURIComponent(reference)}&paid=${paymentChoice}`
       );
     } catch {
       setPayError(

@@ -2,17 +2,28 @@ import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import Link from "next/link";
 import { CheckCircle2, CalendarCheck, Home, Receipt } from "lucide-react";
+import { PaymentReceipt } from "@/components/receipt/payment-receipt";
+import { createServiceClient } from "@/lib/supabase/service";
 
-export default function BookingSuccessPage({
+export default async function BookingSuccessPage({
   searchParams,
 }: {
-  searchParams: { ref?: string; pref?: string; paid?: string };
+  searchParams: { appointmentId?: string; ref?: string; pref?: string; paid?: string };
 }) {
   const paidFull = searchParams.paid === "full";
+  const supabase = createServiceClient();
+  const { data: appointment } = searchParams.appointmentId
+    ? await supabase
+        .from("appointments")
+        .select("id, created_at, status, amount_paid_ghs, customer:customers(full_name, phone), service:services(name), branch:branches(name)")
+        .eq("id", searchParams.appointmentId)
+        .maybeSingle()
+    : { data: null };
+  const payment = appointment as any;
 
   return (
     <>
-      <section className="relative bg-[#000a54] px-6 pb-28 pt-0 text-center">
+      <section className="receipt-screen-only relative bg-[#000a54] px-6 pb-28 pt-0 text-center">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-amber-400/10 blur-3xl" />
           <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-teal-400/10 blur-3xl" />
@@ -57,7 +68,7 @@ export default function BookingSuccessPage({
         </div>
       </section>
 
-      <section className="relative -mt-10 px-6 pb-24">
+      <section className="receipt-screen-only relative -mt-10 px-6 pb-16">
         <div className="mx-auto max-w-lg">
           <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-xl shadow-slate-900/5">
             <h2 className="font-serif text-xl font-bold text-[#000a54]">
@@ -116,7 +127,24 @@ export default function BookingSuccessPage({
         </div>
       </section>
 
-      <Footer />
+      {payment && (
+        <section className="px-6 pb-24">
+          <PaymentReceipt
+            receiptNumber={`SC-SES-${payment.id.slice(0, 8).toUpperCase()}`}
+            customerName={payment.customer?.full_name ?? "Customer"}
+            customerPhone={payment.customer?.phone}
+            description={payment.service?.name ?? "Treatment session"}
+            paymentType={paidFull ? "Full treatment payment" : "Booking fee"}
+            amount={Number(payment.amount_paid_ghs ?? 0)}
+            date={payment.created_at}
+            reference={searchParams.pref}
+            status="Paid"
+            branch={payment.branch?.name}
+          />
+        </section>
+      )}
+
+      <div className="receipt-screen-only"><Footer /></div>
     </>
   );
 }

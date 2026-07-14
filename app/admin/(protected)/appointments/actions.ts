@@ -26,6 +26,11 @@ export async function bookAppointmentManual(formData: FormData) {
   const shadeAfter = String(formData.get("shadeAfter") || "").trim();
   const followUpDate = String(formData.get("followUpDate") || "").trim();
   const consentConfirmed = formData.get("consentConfirmed") === "on";
+  const visitType = formData.get("visitType") === "walk_in" ? "walk_in" : "booking";
+  const paymentMode = String(formData.get("paymentMode") || "pay_later");
+  const paymentMethod = String(formData.get("paymentMethod") || "").trim();
+  const paymentReference = String(formData.get("paymentReference") || "").trim();
+  const requestedAmount = Number(formData.get("paymentAmount") || 0);
 
   if (!serviceId || !date || !time) {
     throw new Error("Missing required fields");
@@ -103,30 +108,73 @@ export async function bookAppointmentManual(formData: FormData) {
   const unitPrice = service?.price_ghs ?? null;
   const price = unitPrice === null ? null : Number(unitPrice) * totalSessions;
 
+  if (!Number.isFinite(requestedAmount) || requestedAmount < 0 || (price !== null && requestedAmount > price)) {
+    throw new Error("Payment amount must be between GHS 0 and the treatment total");
+  }
+  if (!['record', 'paystack', 'pay_later'].includes(paymentMode)) {
+    throw new Error("Choose a valid payment option");
+  }
+  if (paymentMode !== "pay_later" && requestedAmount <= 0) {
+    throw new Error("Enter an amount greater than GHS 0 or choose Pay later");
+  }
+  if (paymentMode === "record" && !paymentMethod) {
+    throw new Error("Choose how the payment was received");
+  }
+
+  const amountPaid = paymentMode === "record" ? requestedAmount : 0;
+  const recordedReference = paymentMode === "record"
+    ? paymentReference || `MANUAL-${Date.now()}`
+    : null;
+
   // Insert confirmed appointment
-  const { error: apptErr } = await supabase.from("appointments").insert({
+  const { data: appointment, error: apptErr } = await supabase.from("appointments").insert({
     customer_id: customerId,
     service_id: serviceId,
     branch_id: branchId,
     appointment_date: date,
     appointment_time: time,
-    status: "confirmed", // default to confirmed for manual staff bookings
+    status: paymentMode === "paystack" ? "pending" : "confirmed",
     price_ghs: price,
-    amount_paid_ghs: price,
+    amount_paid_ghs: amountPaid,
     session_number: sessionNumber,
     total_sessions: totalSessions,
     shade_before: shadeBefore || null,
     shade_after: shadeAfter || null,
     follow_up_date: followUpDate || null,
     consent_confirmed: consentConfirmed,
-    notes: notes || null,
-  });
+    notes: [
+      paymentMode === "record" ? `Payment ${recordedReference} via ${paymentMethod}` : paymentMode === "paystack" ? "Paystack payment pending" : "Payment pending",
+      `${visitType === "walk_in" ? "Walk-in" : "Booking"} created by staff`,
+      notes,
+    ].filter(Boolean).join(". "),
+  }).select("id").single();
 
-  if (apptErr) {
-    throw new Error(apptErr.message);
+  if (apptErr || !appointment) {
+    throw new Error(apptErr?.message || "Failed to create appointment");
   }
 
   revalidatePath("/admin/appointments");
+  revalidatePath("/admin/dashboard");
+
+  const { data: customer } = await supabase
+    .from("customers")
+    .select("email, phone")
+    .eq("id", customerId)
+    .single();
+
+  // Email is optional in the CRM, but Paystack requires a valid email-shaped
+  // value to open checkout. Use the clinic payment inbox when none was supplied.
+  const customerEmail = String(customer?.email || "").trim();
+  const paystackEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)
+    ? customerEmail
+    : "payments@smilecentergh.com";
+
+  return {
+    appointmentId: appointment.id,
+    paymentMode,
+    paymentAmount: requestedAmount,
+    email: paystackEmail,
+  };
 }
 
 const SESSION_STATUSES = ["pending", "confirmed", "completed", "cancelled", "no_show"] as const;

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/service";
 import { Badge, Button, Card, Input, Label, Textarea } from "@/components/ui/primitives";
 import { formatDate, formatGHS, formatTime } from "@/lib/utils";
@@ -42,13 +42,20 @@ export default async function WhiteningSessionPage({ params }: { params: { id: s
             {session.service?.name} · {formatDate(session.appointment_date)} at {formatTime(session.appointment_time)}
           </p>
         </div>
-        <Badge tone={session.status === "completed" ? "success" : session.status === "cancelled" ? "danger" : "gold"}>
-          {String(session.status).replace("_", " ")}
-        </Badge>
+        <div className="flex flex-wrap items-center gap-3">
+          {Number(session.amount_paid_ghs ?? 0) > 0 && (
+            <Button href={`/admin/transactions/session/${session.id}/receipt`} variant="secondary" size="sm">
+              <Printer className="h-4 w-4" /> Print receipt
+            </Button>
+          )}
+          <Badge tone={session.status === "completed" ? "success" : session.status === "cancelled" ? "danger" : "gold"}>
+            {String(session.status).replace("_", " ")}
+          </Badge>
+        </div>
       </div>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2">
-        <Card className="p-5"><p className="text-sm text-muted">Total treatment amount</p><p className="mt-2 text-2xl font-semibold tabular-nums text-ink">{formatGHS(session.price_ghs)}</p></Card>
+        <Card className="p-5"><p className="text-sm text-muted">Amount paid</p><p className="mt-2 text-2xl font-semibold tabular-nums text-ink">{formatGHS(session.amount_paid_ghs)}</p></Card>
         <Card className="p-5"><p className="text-sm text-muted">Sessions</p><p className="mt-2 text-2xl font-semibold tabular-nums text-ink">{session.total_sessions ?? 1}</p></Card>
       </div>
 

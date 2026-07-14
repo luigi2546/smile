@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Script from "next/script";
 import { Button, Input, Label, Textarea } from "@/components/ui/primitives";
 import { Modal } from "@/components/ui/modal";
 import { bookAppointmentManual } from "@/app/admin/(protected)/appointments/actions";
@@ -34,6 +36,7 @@ export function BookAppointmentModal({
   triggerLabel = "Book Session",
   title = "Book Whitening Session",
 }: BookAppointmentModalProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isNewCustomer, setIsNewCustomer] = useState(defaultIsNewCustomer);
   const [selectedServiceId, setSelectedServiceId] = useState(defaultServiceId);
@@ -44,6 +47,18 @@ export function BookAppointmentModal({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [visitType, setVisitType] = useState<"booking" | "walk_in">("booking");
+  const [paymentMode, setPaymentMode] = useState<"record" | "paystack" | "pay_later">("record");
+  const [paymentChoice, setPaymentChoice] = useState<"full" | "booking_fee" | "custom">("full");
+  const [customAmount, setCustomAmount] = useState("0");
+
+  const paymentAmount = paymentMode === "pay_later"
+    ? 0
+    : paymentChoice === "booking_fee"
+      ? Math.min(30, Number(amountPaid || 0))
+      : paymentChoice === "custom"
+        ? Number(customAmount || 0)
+        : Number(amountPaid || 0);
 
   function updatePackageAmount(serviceId: string, sessions: number) {
     const treatment = services.find((service) => service.id === serviceId);
@@ -59,10 +74,58 @@ export function BookAppointmentModal({
     fd.set("isNewCustomer", String(isNewCustomer));
 
     try {
-      await bookAppointmentManual(fd);
+      fd.set("visitType", visitType);
+      fd.set("paymentMode", paymentMode);
+      fd.set("paymentAmount", String(paymentAmount));
+      const result = await bookAppointmentManual(fd);
+
+      if (result.paymentMode === "paystack") {
+        const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+        if (!publicKey || !window.PaystackPop) {
+          throw new Error("Paystack is not ready. Check the public key and try again from the appointment record.");
+        }
+        const handler = window.PaystackPop.setup({
+          key: publicKey,
+          email: result.email,
+          amount: Math.round(result.paymentAmount * 100),
+          currency: "GHS",
+          metadata: { appointmentId: result.appointmentId, source: "admin" },
+          callback: (transaction: { reference: string }) => {
+            setLoading(true);
+            fetch("/api/admin/paystack/appointment/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                reference: transaction.reference,
+                appointmentId: result.appointmentId,
+                expectedAmount: result.paymentAmount,
+              }),
+            })
+              .then(async (response) => {
+                const body = await response.json();
+                if (!response.ok) throw new Error(body.error || "Could not verify payment.");
+                setOpen(false);
+                router.push(`/admin/transactions/session/${result.appointmentId}/receipt`);
+                router.refresh();
+              })
+              .catch((paymentError) => setError(paymentError.message))
+              .finally(() => setLoading(false));
+          },
+          onClose: () => {
+            setLoading(false);
+            setError("Payment was not completed. The session was saved as pending and can be paid later.");
+          },
+        });
+        handler.openIframe();
+        return;
+      }
+
       setOpen(false);
-      // Reset state
       setIsNewCustomer(defaultIsNewCustomer);
+      router.push(result.paymentMode === "record"
+        ? `/admin/transactions/session/${result.appointmentId}/receipt`
+        : `/admin/appointments/${result.appointmentId}`);
+      router.refresh();
     } catch (err: any) {
       setError(err?.message || String(err));
     } finally {
@@ -72,6 +135,7 @@ export function BookAppointmentModal({
 
   return (
     <>
+      <Script src="https://js.paystack.co/v1/inline.js" strategy="lazyOnload" />
       <Button type="button" onClick={() => setOpen(true)}>
         {triggerLabel}
       </Button>
@@ -84,30 +148,31 @@ export function BookAppointmentModal({
             </p>
           )}
 
-          {/* Customer Selection Mode */}
-          <div className="flex gap-4 border-b border-slate-100 pb-3">
-            <button
-              type="button"
-              onClick={() => setIsNewCustomer(false)}
-              className={`flex-1 rounded-xl py-2.5 text-xs font-semibold border transition-all ${
-                !isNewCustomer
-                  ? "bg-teal/5 border-teal text-teal-darker"
-                  : "bg-white border-slate-200 text-ink/70 hover:bg-slate-50"
-              }`}
-            >
-              Existing Patient
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsNewCustomer(true)}
-              className={`flex-1 rounded-xl py-2.5 text-xs font-semibold border transition-all ${
-                isNewCustomer
-                  ? "bg-teal/5 border-teal text-teal-darker"
-                  : "bg-white border-slate-200 text-ink/70 hover:bg-slate-50"
-              }`}
-            >
-              New Patient
-            </button>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="customerType">Customer type</Label>
+              <select
+                id="customerType"
+                value={isNewCustomer ? "new" : "existing"}
+                onChange={(event) => setIsNewCustomer(event.target.value === "new")}
+                className="w-full rounded-2xl border border-surface-strong bg-surface px-4 py-3 text-sm text-ink focus:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/15"
+              >
+                <option value="existing">Existing customer</option>
+                <option value="new">New customer</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="visitType">Visit type</Label>
+              <select
+                id="visitType"
+                value={visitType}
+                onChange={(event) => setVisitType(event.target.value as "booking" | "walk_in")}
+                className="w-full rounded-2xl border border-surface-strong bg-surface px-4 py-3 text-sm text-ink focus:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/15"
+              >
+                <option value="booking">Scheduled booking</option>
+                <option value="walk_in">Walk-in</option>
+              </select>
+            </div>
           </div>
 
           {/* Patient Details */}
@@ -197,8 +262,12 @@ export function BookAppointmentModal({
             </div>
           </div>
 
-          <fieldset className="space-y-3 rounded-2xl border border-surface-strong p-4">
-            <legend className="px-1 text-sm font-semibold text-ink">Whitening session details</legend>
+          <details className="group rounded-2xl border border-surface-strong bg-white">
+            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold text-ink focus-ring">
+              <span>More session details</span>
+              <span className="text-lg text-muted transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <div className="space-y-3 border-t border-surface-strong p-4">
             <div>
                 <Label htmlFor="totalSessions">Number of Sessions</Label>
                 <Input
@@ -252,6 +321,71 @@ export function BookAppointmentModal({
               <input name="consentConfirmed" type="checkbox" className="h-4 w-4 rounded border-slate-300 text-teal focus:ring-teal" />
               Customer treatment consent confirmed
             </label>
+            </div>
+          </details>
+
+          <fieldset className="space-y-4 rounded-2xl border border-teal/30 bg-teal/5 p-4">
+            <legend className="px-1 text-sm font-semibold text-ink">Payment</legend>
+            <div>
+              <Label htmlFor="paymentMode">Payment action</Label>
+              <select
+                id="paymentMode"
+                value={paymentMode}
+                onChange={(event) => setPaymentMode(event.target.value as "record" | "paystack" | "pay_later")}
+                className="w-full rounded-2xl border border-surface-strong bg-white px-4 py-3 text-sm font-semibold text-ink focus:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/15"
+              >
+                <option value="record">Accept and record payment</option>
+                <option value="paystack">Collect with Paystack</option>
+                <option value="pay_later">Save without payment</option>
+              </select>
+            </div>
+
+            {paymentMode !== "pay_later" && (
+              <div>
+                <Label htmlFor="paymentChoice">Amount to collect</Label>
+                <select
+                  id="paymentChoice"
+                  value={paymentChoice}
+                  onChange={(event) => setPaymentChoice(event.target.value as "full" | "booking_fee" | "custom")}
+                  className="w-full rounded-2xl border border-surface-strong bg-white px-4 py-3 text-sm text-ink focus:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/15"
+                >
+                  <option value="full">Full treatment amount</option>
+                  <option value="booking_fee">Booking fee — GHS 30</option>
+                  <option value="custom">Custom amount</option>
+                </select>
+              </div>
+            )}
+
+            {paymentMode !== "pay_later" && paymentChoice === "custom" && (
+              <div>
+                <Label htmlFor="customPaymentAmount">Amount to receive (GHS)</Label>
+                <Input id="customPaymentAmount" type="number" min="0.01" max={Number(amountPaid || 0)} step="0.01" value={customAmount} onChange={(event) => setCustomAmount(event.target.value)} required />
+              </div>
+            )}
+
+            {paymentMode === "record" && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="paymentMethod">Payment method</Label>
+                  <select id="paymentMethod" name="paymentMethod" required className="w-full rounded-2xl border border-surface-strong bg-white px-4 py-3 text-sm text-ink">
+                    <option value="">Choose method</option>
+                    <option value="cash">Cash</option>
+                    <option value="mobile_money">Mobile money</option>
+                    <option value="card">Card / POS</option>
+                    <option value="bank_transfer">Bank transfer</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="paymentReference">Reference (optional)</Label>
+                  <Input id="paymentReference" name="paymentReference" placeholder="MoMo, POS, or bank reference" />
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between rounded-xl bg-white px-4 py-3">
+              <span className="text-sm font-medium text-muted">Amount to receive now</span>
+              <span className="font-mono text-lg font-bold text-ink">GHS {paymentAmount.toFixed(2)}</span>
+            </div>
           </fieldset>
 
           <div className="flex justify-end gap-3 pt-2">
@@ -264,7 +398,7 @@ export function BookAppointmentModal({
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Booking..." : "Book Session"}
+              {loading ? "Processing..." : paymentMode === "paystack" ? "Save & open Paystack" : paymentMode === "record" ? "Save, record & issue receipt" : "Save session"}
             </Button>
           </div>
         </form>
