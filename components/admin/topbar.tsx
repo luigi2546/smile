@@ -15,34 +15,39 @@ type ClinicNotification = {
   id: string;
   title: string;
   desc: string;
-  time: string;
-  type: "booking" | "alert";
+  createdAt: string;
+  type: "booking";
+  href: string;
   read: boolean;
 };
 
-const MOCK_NOTIFICATIONS: ClinicNotification[] = [
-  {
-    id: "1",
-    title: "New Booking Request",
-    desc: "Ama Owusu booked Teeth Whitening at Dome Branch.",
-    time: "2 min ago",
-    type: "booking",
-    read: false,
-  },
-  {
-    id: "3",
-    title: "Low Inventory Alert",
-    desc: "Dome Branch reporting low stock on Whitening kits.",
-    time: "3 hrs ago",
-    type: "alert",
-    read: true,
-  },
-];
+const READ_NOTIFICATIONS_KEY = "smilecenter-read-notifications";
+
+function getReadNotificationIds() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(READ_NOTIFICATIONS_KEY) ?? "[]");
+    return new Set<string>(Array.isArray(saved) ? saved : []);
+  } catch {
+    return new Set<string>();
+  }
+}
+
+function relativeTime(value: string) {
+  const elapsedSeconds = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 1000));
+  if (elapsedSeconds < 60) return "Just now";
+  const minutes = Math.floor(elapsedSeconds / 60);
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
 
 export function Topbar({ fullName, role }: TopbarProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [notifications, setNotifications] = useState<ClinicNotification[]>(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<ClinicNotification[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
 
   const notificationsRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -62,8 +67,53 @@ export function Topbar({ fullName, role }: TopbarProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    async function loadNotifications() {
+      try {
+        const response = await fetch("/api/admin/notifications", { cache: "no-store" });
+        if (!response.ok) return;
+        const body = await response.json();
+        const readIds = getReadNotificationIds();
+        if (active) {
+          setNotifications(
+            (body.notifications ?? [])
+              .filter((notification: Omit<ClinicNotification, "read">) => !readIds.has(notification.id))
+              .map((notification: Omit<ClinicNotification, "read">) => ({
+                ...notification,
+                read: false,
+              }))
+          );
+        }
+      } catch {
+        // Keep the bell usable when the network is temporarily unavailable.
+      } finally {
+        if (active) setNotificationsLoading(false);
+      }
+    }
+
+    loadNotifications();
+    const refreshTimer = window.setInterval(loadNotifications, 30_000);
+    return () => {
+      active = false;
+      window.clearInterval(refreshTimer);
+    };
+  }, []);
+
   function markAllAsRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    const readIds = getReadNotificationIds();
+    notifications.forEach((notification) => readIds.add(notification.id));
+    localStorage.setItem(READ_NOTIFICATIONS_KEY, JSON.stringify([...readIds]));
+    setNotifications([]);
+  }
+
+  function markAsRead(id: string) {
+    const readIds = getReadNotificationIds();
+    readIds.add(id);
+    localStorage.setItem(READ_NOTIFICATIONS_KEY, JSON.stringify([...readIds]));
+    setNotifications((prev) => prev.filter((notification) => notification.id !== id));
+    setShowNotifications(false);
   }
 
   function getNotificationIcon(type: string) {
@@ -102,7 +152,7 @@ export function Topbar({ fullName, role }: TopbarProps) {
 
           {/* Notifications Dropdown */}
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-teal/10 bg-white p-4 shadow-xl ring-1 ring-black/5 animate-fade-in">
+            <div className="absolute right-0 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-teal/10 bg-white p-4 shadow-xl ring-1 ring-black/5 animate-fade-in">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                 <h4 className="font-semibold text-sm text-ink">Notifications</h4>
                 {unreadCount > 0 && (
@@ -117,8 +167,10 @@ export function Topbar({ fullName, role }: TopbarProps) {
 
               <div className="mt-3 space-y-2 max-h-64 overflow-y-auto">
                 {notifications.map((n) => (
-                  <div
+                  <Link
                     key={n.id}
+                    href={n.href}
+                    onClick={() => markAsRead(n.id)}
                     className={`flex gap-3 rounded-xl p-2.5 text-xs transition-colors hover:bg-slate-50 ${
                       !n.read ? "bg-teal/5" : ""
                     }`}
@@ -129,11 +181,14 @@ export function Topbar({ fullName, role }: TopbarProps) {
                     <div className="flex-1 space-y-0.5">
                       <p className="font-semibold text-ink">{n.title}</p>
                       <p className="text-muted leading-relaxed">{n.desc}</p>
-                      <p className="text-[10px] text-muted">{n.time}</p>
+                      <p className="text-[10px] text-muted">{relativeTime(n.createdAt)}</p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
-                {notifications.length === 0 && (
+                {notificationsLoading && notifications.length === 0 && (
+                  <p className="py-4 text-center text-xs text-muted">Loading notifications...</p>
+                )}
+                {!notificationsLoading && notifications.length === 0 && (
                   <p className="py-4 text-center text-xs text-muted">No notifications</p>
                 )}
               </div>
