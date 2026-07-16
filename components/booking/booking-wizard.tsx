@@ -19,6 +19,8 @@ import {
   Smartphone,
   AlertCircle,
   Lock,
+  Minus,
+  Plus,
 } from "lucide-react";
 
 const BOOKING_FEE_GHS = 30;
@@ -258,26 +260,49 @@ export function BookingWizard({
             })}
           </div>
           <Card className="mx-auto mt-6 max-w-md p-5">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <Label htmlFor="totalSessions">Number of sessions</Label>
                 <p className="mt-1 text-xs text-muted">
                   Each session costs {formatGHS(unitPriceGhs)} and lasts {selectedService?.duration_minutes ?? 0} minutes.
                 </p>
               </div>
-              <Input
-                id="totalSessions"
-                type="number"
-                min={1}
-                max={20}
-                step={1}
-                value={totalSessions}
-                onChange={(event) => {
-                  const value = Number(event.target.value);
-                  setTotalSessions(Number.isInteger(value) ? Math.min(20, Math.max(1, value)) : 1);
-                }}
-                className="w-24"
-              />
+              <div className="flex w-full items-center justify-between gap-2 sm:w-auto">
+                <button
+                  type="button"
+                  aria-label="Decrease number of sessions"
+                  disabled={totalSessions <= 1}
+                  onClick={() => setTotalSessions((sessions) => Math.max(1, sessions - 1))}
+                  className="inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-surface-strong bg-white text-ink transition hover:bg-surface2 focus-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Minus className="h-5 w-5" />
+                </button>
+                <Input
+                  id="totalSessions"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={20}
+                  step={1}
+                  value={totalSessions}
+                  onChange={(event) => {
+                    const value = Number(event.target.value);
+                    if (Number.isInteger(value) && value >= 1 && value <= 20) {
+                      setTotalSessions(value);
+                    }
+                  }}
+                  className="h-12 min-w-0 flex-1 text-center text-lg font-bold tabular-nums sm:w-20 sm:flex-none"
+                />
+                <button
+                  type="button"
+                  aria-label="Increase number of sessions"
+                  disabled={totalSessions >= 20}
+                  onClick={() => setTotalSessions((sessions) => Math.min(20, sessions + 1))}
+                  className="inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-2xl bg-teal text-white shadow-soft transition hover:bg-teal-dark focus-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Plus className="h-5 w-5" />
+                </button>
+              </div>
             </div>
             <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4 text-sm">
               <span className="text-muted">
