@@ -148,7 +148,7 @@ export default async function MembershipCheckoutPage({ searchParams }: Props) {
                   <div>
                     <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Need help?</p>
                     <p className="mt-3 text-sm text-slate-700">
-                      Call or WhatsApp +233 24 000 0000 for immediate support with your membership payment.
+                      Call or WhatsApp +233 24 512 7775 for immediate support with your membership payment.
                     </p>
                   </div>
                 </div>

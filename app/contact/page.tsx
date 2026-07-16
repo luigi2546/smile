@@ -18,25 +18,25 @@ const CONTACT_CHANNELS = [
   {
     icon: <Phone className="h-6 w-6" />,
     title: "Phone",
-    value: "+233 24 000 0000",
+    value: "+233 24 512 7775",
     sub: "Mon – Sat · 8AM – 6PM",
-    href: "tel:+233240000000",
+    href: "tel:+233245127775",
     cta: "Call now",
   },
   {
     icon: <Mail className="h-6 w-6" />,
     title: "Email",
-    value: "smilecentergh@hotmail.com",
+    value: "smilecentergh2@gmail.com",
     sub: "We reply within 24 hours",
-    href: "mailto:smilecentergh@hotmail.com",
+    href: "mailto:smilecentergh2@gmail.com",
     cta: "Send email",
   },
   {
     icon: <MessageCircle className="h-6 w-6" />,
     title: "WhatsApp",
-    value: "+233 24 000 0000",
+    value: "+233 24 512 7775",
     sub: "Quickest way to reach us",
-    href: "https://wa.me/233240000000",
+    href: "https://wa.me/233245127775",
     cta: "Chat on WhatsApp",
   },
 ];
@@ -148,7 +148,7 @@ export default async function ContactPage() {
             <p className="mt-2 text-sm text-slate-400">
               Fill in the form and we'll get back to you within 24 hours.
             </p>
-            <form className="mt-6 space-y-4" action="mailto:smilecentergh@hotmail.com" method="get" encType="text/plain">
+            <form className="mt-6 space-y-4" action="mailto:smilecentergh2@gmail.com" method="get" encType="text/plain">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold text-slate-600">
@@ -240,14 +240,22 @@ export default async function ContactPage() {
                     <div className="flex-1">
                       <p className="font-semibold text-[#000a54]">{b.name}</p>
                       <p className="mt-0.5 text-sm text-slate-400">{b.address}</p>
-                      {b.phone && (
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
                         <a
-                          href={`tel:${b.phone}`}
-                          className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-teal-700 hover:underline"
+                          href="tel:+233245127775"
+                          className="flex min-h-11 items-center gap-1.5 text-xs font-semibold text-teal-700 hover:underline"
                         >
-                          <Phone className="h-3.5 w-3.5" /> {b.phone}
+                          <Phone className="h-3.5 w-3.5" /> +233 24 512 7775
                         </a>
-                      )}
+                        <a
+                          href="https://wa.me/233245127775"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex min-h-11 items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:underline"
+                        >
+                          <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+                        </a>
+                      </div>
                       <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-400">
                         <Clock className="h-3.5 w-3.5" /> Mon–Sat · 8AM – 6PM
                       </p>
@@ -346,7 +354,7 @@ export default async function ContactPage() {
             <p className="text-sm text-slate-500">
               Still have questions?{" "}
               <a
-                href="mailto:smilecentergh@hotmail.com"
+                href="mailto:smilecentergh2@gmail.com"
                 className="font-semibold text-[#000a54] hover:underline"
               >
                 Email us directly

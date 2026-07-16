@@ -171,7 +171,7 @@ export default async function HomePage() {
             {[
               { label: "Instagram", Icon: Instagram, color: "from-pink-500 via-purple-500 to-orange-400", href: "https://instagram.com/SmileCenterGH" },
               { label: "Facebook", Icon: Facebook, color: "from-blue-600 to-blue-400", href: "https://facebook.com/SmileCenterGH" },
-              { label: "WhatsApp", Icon: MessageSquare, color: "from-emerald-600 to-emerald-400", href: "https://wa.me/your-number" },
+              { label: "WhatsApp", Icon: MessageSquare, color: "from-emerald-600 to-emerald-400", href: "https://wa.me/233245127775" },
               { label: "TikTok", Icon: Globe, color: "from-slate-900 via-slate-700 to-black", href: "https://tiktok.com/@SmileCenterGH" },
             ].map((item, index) => (
               <a

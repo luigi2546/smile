@@ -177,8 +177,8 @@ export function SettingsClient({ isAdmin, staffRole }: Props) {
   /* ── Clinic settings ───────────────────── */
   const [clinic, setClinic] = useState<ClinicSettings>({
     clinicName: "Smile Center GH",
-    contactEmail: "smilecentergh@hotmail.com",
-    contactPhone: "+233 24 000 0000",
+    contactEmail: "smilecentergh2@gmail.com",
+    contactPhone: "+233 24 512 7775",
     openTime: "08:00",
     closeTime: "18:00",
     workingDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],

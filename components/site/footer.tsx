@@ -81,10 +81,10 @@ export function Footer() {
               <li className="flex flex-col">
                 <span className="text-xs uppercase tracking-wide text-white/50 mb-0.5">Email</span>
                 <a
-                  href="mailto:smilecentergh@hotmail.com"
+                  href="mailto:smilecentergh2@gmail.com"
                   className="text-white/80 hover:text-white transition hover:underline"
                 >
-                  smilecentergh@hotmail.com
+                  smilecentergh2@gmail.com
                 </a>
               </li>
               <li className="flex flex-col">
@@ -101,10 +101,10 @@ export function Footer() {
               <li className="flex flex-col">
                 <span className="text-xs uppercase tracking-wide text-white/50 mb-0.5">Phone / WhatsApp</span>
                 <a
-                  href="tel:+233240000000"
+                  href="tel:+233245127775"
                   className="text-white/80 hover:text-white transition hover:underline"
                 >
-                  +233 24 000 0000
+                  +233 24 512 7775
                 </a>
               </li>
               <li className="flex flex-col">

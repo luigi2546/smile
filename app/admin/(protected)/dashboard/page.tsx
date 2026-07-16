@@ -4,7 +4,7 @@ import { StatCard } from "@/components/admin/stat-card";
 import { RevenueTrendChart } from "@/components/admin/charts";
 import { Badge, Card, Button } from "@/components/ui/primitives";
 import { BookAppointmentModal } from "@/components/admin/book-appointment-modal";
-import { formatGHS, formatTime, statusLabel } from "@/lib/utils";
+import { formatDate, formatGHS, formatTime, statusLabel } from "@/lib/utils";
 import type { Appointment, AppointmentStatus, Branch, Service } from "@/lib/types";
 import { Printer } from "lucide-react";
 
@@ -24,12 +24,11 @@ export default async function DashboardPage() {
   const isManager = staff?.role === "branch_manager" && staff.branch_id;
 
   const now = new Date();
-  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
-
   let appointmentsQuery = supabase
     .from("appointments")
     .select("*, service:services(id, name, price_ghs, category), customer:customers(id, full_name, phone), branch:branches(id, name)")
-    .gte("appointment_date", sixMonthsAgo.toISOString().slice(0, 10));
+    .order("appointment_date", { ascending: false })
+    .order("appointment_time", { ascending: false });
 
   if (isManager) {
     appointmentsQuery = appointmentsQuery.eq("branch_id", staff.branch_id);
@@ -74,6 +73,14 @@ export default async function DashboardPage() {
   const todaysSessions = allAppointments
     .filter((appointment) => appointment.appointment_date === today)
     .sort((a, b) => a.appointment_time.localeCompare(b.appointment_time));
+  const dashboardAppointments = [...allAppointments].sort((a, b) => {
+    const aIsToday = a.appointment_date === today;
+    const bIsToday = b.appointment_date === today;
+    if (aIsToday !== bIsToday) return aIsToday ? -1 : 1;
+    return `${b.appointment_date}T${b.appointment_time}`.localeCompare(
+      `${a.appointment_date}T${a.appointment_time}`
+    );
+  });
   const completedThisMonth = thisMonthAppointments.filter((a) => a.status === "completed").length;
   const followUpsDue = ((reminders as { due_date: string; is_sent: boolean }[] | null) ?? []).filter(
     (reminder) => reminder.due_date <= today
@@ -154,37 +161,51 @@ export default async function DashboardPage() {
         <Card className="overflow-hidden">
           <div className="flex items-center justify-between gap-4 border-b border-teal-darker/5 px-6 py-5">
             <div>
-              <h2 className="font-semibold text-ink">Today&apos;s Appointments</h2>
-              <p className="mt-1 text-sm text-muted">Dental appointments scheduled today.</p>
+              <h2 className="font-semibold text-ink">All Appointments</h2>
+              <p className="mt-1 text-sm text-muted">Today&apos;s appointments are highlighted and shown first.</p>
             </div>
             <Button href="/admin/appointments" variant="secondary" size="sm">View all</Button>
           </div>
-          <div>
+          <div className="max-h-[34rem] overflow-y-auto overflow-x-hidden">
             <table className="w-full table-fixed text-left text-sm">
-              <thead className="bg-teal-darker/5 text-xs uppercase tracking-wide text-muted">
+              <thead className="sticky top-0 z-10 bg-teal-darker/5 text-xs uppercase tracking-wide text-muted backdrop-blur-sm">
                 <tr>
-                  <th className="w-20 px-4 py-3 font-semibold">Time</th>
-                  <th className="px-4 py-3 font-semibold">Customer</th>
+                  <th className="w-28 px-2 py-3 font-semibold sm:w-40 sm:px-4">Schedule</th>
+                  <th className="px-2 py-3 font-semibold sm:px-4">Customer</th>
                   <th className="hidden px-4 py-3 font-semibold lg:table-cell">Treatment</th>
                   <th className="hidden w-20 px-4 py-3 font-semibold 2xl:table-cell">Sessions</th>
-                  <th className="w-28 px-4 py-3 font-semibold">Status</th>
+                  <th className="w-24 px-2 py-3 font-semibold sm:w-28 sm:px-4">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {todaysSessions.map((session) => (
-                  <tr key={session.id} className="border-t border-teal-darker/5 transition-colors hover:bg-teal-darker/[0.02]">
-                    <td className="px-4 py-4 font-medium tabular-nums text-ink">{formatTime(session.appointment_time)}</td>
-                    <td className="px-4 py-4">
+                {dashboardAppointments.map((session) => {
+                  const isToday = session.appointment_date === today;
+                  return (
+                  <tr
+                    key={session.id}
+                    className={`border-t transition-colors ${
+                      isToday
+                        ? "border-gold/30 bg-gold/15 hover:bg-gold/20"
+                        : "border-teal-darker/5 hover:bg-teal-darker/[0.02]"
+                    }`}
+                  >
+                    <td className="px-2 py-4 font-medium text-ink sm:px-4">
+                      <span className="block">{formatDate(session.appointment_date)}</span>
+                      <span className="mt-1 block text-xs tabular-nums text-muted">{formatTime(session.appointment_time)}</span>
+                      {isToday && <span className="mt-1 inline-flex rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink">Today</span>}
+                    </td>
+                    <td className="min-w-0 px-2 py-4 sm:px-4">
                       <p className="break-words font-medium text-ink">{session.customer?.full_name ?? "Unknown customer"}</p>
                       <p className="mt-0.5 break-words text-xs text-muted">{session.customer?.phone}</p>
                     </td>
                     <td className="hidden break-words px-4 py-4 text-muted lg:table-cell">{session.service?.name ?? "Treatment"}</td>
                     <td className="hidden px-4 py-4 text-muted 2xl:table-cell">{session.total_sessions ?? 1}</td>
-                    <td className="px-4 py-4"><SessionStatus status={session.status} /></td>
+                    <td className="px-2 py-4 sm:px-4"><SessionStatus status={session.status} /></td>
                   </tr>
-                ))}
-                {todaysSessions.length === 0 && (
-                  <tr><td colSpan={5} className="px-4 py-12 text-center text-muted">No appointments scheduled today.</td></tr>
+                  );
+                })}
+                {dashboardAppointments.length === 0 && (
+                  <tr><td colSpan={5} className="px-4 py-12 text-center text-muted">No appointments found.</td></tr>
                 )}
               </tbody>
             </table>

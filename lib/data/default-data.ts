@@ -5,7 +5,7 @@ export const defaultBranches: Branch[] = [
     id: "00000000-0000-0000-0000-000000000001",
     name: "Dome Pillar 2 K Boat",
     address: "Dome Pillar 2 K Boat, Accra",
-    phone: "+233 24 000 0001",
+    phone: "+233 24 512 7775",
     lat: null,
     lng: null,
     is_active: true,
