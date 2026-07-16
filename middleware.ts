@@ -2,7 +2,31 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request: { headers: request.headers } });
+  const hostname = (request.headers.get("host") ?? "").split(":")[0].toLowerCase();
+  const isDashboardHost = hostname === "dashboard.smilecentergh.com";
+  const requestedPath = request.nextUrl.pathname;
+
+  // Keep dashboard subdomain URLs clean even when existing app links use /admin/....
+  if (isDashboardHost && requestedPath.startsWith("/admin")) {
+    const canonicalUrl = request.nextUrl.clone();
+    canonicalUrl.pathname = requestedPath.replace(/^\/admin/, "") || "/";
+    return NextResponse.redirect(canonicalUrl);
+  }
+
+  let internalPath = requestedPath;
+  if (isDashboardHost) {
+    internalPath = requestedPath === "/"
+      ? "/admin/dashboard"
+      : requestedPath === "/login"
+        ? "/admin/login"
+        : `/admin${requestedPath}`;
+  }
+
+  const internalUrl = request.nextUrl.clone();
+  internalUrl.pathname = internalPath;
+  let response = isDashboardHost
+    ? NextResponse.rewrite(internalUrl, { request: { headers: request.headers } })
+    : NextResponse.next({ request: { headers: request.headers } });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,11 +37,9 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          response = NextResponse.next({ request: { headers: request.headers } });
           response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: CookieOptions) {
-          response = NextResponse.next({ request: { headers: request.headers } });
           response.cookies.set({ name, value: "", ...options });
         },
       },
@@ -28,13 +50,13 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAdminRoute =
-    request.nextUrl.pathname.startsWith("/admin") &&
-    !request.nextUrl.pathname.startsWith("/admin/login");
+  const isAdminRoute = internalPath.startsWith("/admin") && !internalPath.startsWith("/admin/login");
 
   if (isAdminRoute && !user) {
-    const redirectUrl = new URL("/admin/login", request.url);
-    redirectUrl.searchParams.set("next", request.nextUrl.pathname);
+    const redirectUrl = new URL(isDashboardHost ? "/login" : "/admin/login", request.url);
+    redirectUrl.searchParams.set("next", isDashboardHost
+      ? internalPath.replace(/^\/admin/, "") || "/"
+      : internalPath);
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -42,5 +64,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };
