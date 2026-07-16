@@ -21,6 +21,7 @@ import {
   Lock,
   Minus,
   Plus,
+  CalendarDays,
 } from "lucide-react";
 
 const BOOKING_FEE_GHS = 30;
@@ -59,7 +60,7 @@ export function BookingWizard({
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
   // Step 4
-  const [paymentChoice, setPaymentChoice] = useState<PaymentChoice>("booking_fee");
+  const [paymentChoice, setPaymentChoice] = useState<PaymentChoice>("full");
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
 
@@ -355,15 +356,39 @@ export function BookingWizard({
               </div>
             )}
 
-            <div>
-              <Label htmlFor="date">Date</Label>
+            <div className="rounded-2xl border border-teal/20 bg-teal/5 p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-teal-darker text-white">
+                  <CalendarDays className="h-5 w-5" />
+                </span>
+                <div>
+                  <Label htmlFor="date">Appointment date</Label>
+                  <p id="date-help" className="text-xs text-muted">Tap the date field to open your calendar.</p>
+                </div>
+              </div>
               <Input
                 id="date"
                 type="date"
                 value={date}
                 min={new Date().toISOString().slice(0, 10)}
+                aria-describedby="date-help date-selection"
                 onChange={(e) => setDate(e.target.value)}
+                className="h-14 cursor-pointer border-2 border-teal bg-white text-base font-semibold text-ink shadow-sm [color-scheme:light]"
               />
+              <p
+                id="date-selection"
+                aria-live="polite"
+                className={`mt-3 text-sm font-semibold ${date ? "text-teal-darker" : "text-muted"}`}
+              >
+                {date
+                  ? `Selected: ${new Date(`${date}T00:00:00`).toLocaleDateString("en-GB", {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}`
+                  : "No date selected yet."}
+              </p>
             </div>
 
             <div>
