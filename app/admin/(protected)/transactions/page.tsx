@@ -35,6 +35,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
       status: sub.status,
       reference: sub.payment_ref,
       description: sub.plan?.name ?? "Package payment",
+      sessions: sub.sessions_total ?? 1,
     })),
     ...appointmentTransactions.map((appt) => ({
       id: appt.id,
@@ -45,6 +46,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
       status: appt.status,
       reference: appt.payment_ref ?? appt.notes?.match(/(?:transaction|payment)\s+(\S+)/i)?.[1] ?? "—",
       description: appt.service?.name ?? "Session payment",
+      sessions: appt.total_sessions ?? 1,
     })),
   ]
     .filter((tx) => {
@@ -121,12 +123,13 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
 
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
-        <table className="w-full min-w-[920px] text-left text-sm">
+        <table className="w-full min-w-[1000px] text-left text-sm">
           <thead className="bg-teal-darker/5 text-xs uppercase tracking-wide text-muted">
             <tr>
               <th className="px-5 py-3 font-semibold">Type</th>
               <th className="px-5 py-3 font-semibold">Customer</th>
               <th className="px-5 py-3 font-semibold">Description</th>
+              <th className="px-5 py-3 font-semibold">Sessions</th>
               <th className="px-5 py-3 font-semibold">Amount</th>
               <th className="px-5 py-3 font-semibold">Date</th>
               <th className="px-5 py-3 font-semibold">Status</th>
@@ -140,6 +143,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                 <td className="px-5 py-3.5 font-medium text-ink">{tx.type}</td>
                 <td className="px-5 py-3.5 text-muted">{tx.customer?.full_name ?? "Unknown"}</td>
                 <td className="px-5 py-3.5 text-ink">{tx.description}</td>
+                <td className="px-5 py-3.5 text-center font-semibold tabular-nums text-ink">{tx.sessions}</td>
                 <td className="px-5 py-3.5 text-ink">{formatGHS(tx.amount)}</td>
                 <td className="px-5 py-3.5 text-muted">{formatDate(tx.date.slice(0, 10))}</td>
                 <td className="px-5 py-3.5 text-muted capitalize">{tx.status}</td>
@@ -159,7 +163,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
             ))}
             {transactions.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-5 py-10 text-center text-muted">
+                <td colSpan={9} className="px-5 py-10 text-center text-muted">
                   No transactions found.
                 </td>
               </tr>

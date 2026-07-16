@@ -46,6 +46,7 @@ export function BookingWizard({
 
   // Step 1
   const [serviceId, setServiceId] = useState(defaultServiceId ?? services[0]?.id ?? "");
+  const [totalSessions, setTotalSessions] = useState(1);
   // Step 2
   const [branchId, setBranchId] = useState(branches[0]?.id ?? "");
   const [date, setDate] = useState("");
@@ -82,7 +83,9 @@ export function BookingWizard({
   }, [branchId, branches]);
 
   const timeSlots = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"];
-  const serviceAmountGhs = selectedService?.price_ghs ?? 0;
+  const unitPriceGhs = selectedService?.price_ghs ?? 0;
+  const serviceAmountGhs = unitPriceGhs * totalSessions;
+  const totalDurationMinutes = (selectedService?.duration_minutes ?? 0) * totalSessions;
   const amountToPayGhs = paymentChoice === "full" ? serviceAmountGhs : BOOKING_FEE_GHS;
   const balanceDueGhs = paymentChoice === "full" ? 0 : Math.max(serviceAmountGhs - BOOKING_FEE_GHS, 0);
 
@@ -109,6 +112,7 @@ export function BookingWizard({
           email,
           notes,
           paymentChoice,
+          totalSessions,
         }),
       });
 
@@ -169,6 +173,8 @@ export function BookingWizard({
           branch: selectedBranch?.name ?? "",
           appointment: `${date} at ${time}`,
           paymentChoice,
+          totalSessions,
+          totalAmountGhs: serviceAmountGhs,
         },
         callback: function (transaction: { reference: string }) {
           confirmBookingPayment(transaction.reference);
@@ -251,6 +257,35 @@ export function BookingWizard({
               );
             })}
           </div>
+          <Card className="mx-auto mt-6 max-w-md p-5">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <Label htmlFor="totalSessions">Number of sessions</Label>
+                <p className="mt-1 text-xs text-muted">
+                  Each session costs {formatGHS(unitPriceGhs)} and lasts {selectedService?.duration_minutes ?? 0} minutes.
+                </p>
+              </div>
+              <Input
+                id="totalSessions"
+                type="number"
+                min={1}
+                max={20}
+                step={1}
+                value={totalSessions}
+                onChange={(event) => {
+                  const value = Number(event.target.value);
+                  setTotalSessions(Number.isInteger(value) ? Math.min(20, Math.max(1, value)) : 1);
+                }}
+                className="w-24"
+              />
+            </div>
+            <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4 text-sm">
+              <span className="text-muted">
+                {totalSessions} session{totalSessions === 1 ? "" : "s"} · {totalDurationMinutes} min total
+              </span>
+              <span className="font-bold text-teal-darker">{formatGHS(serviceAmountGhs)}</span>
+            </div>
+          </Card>
           <div className="mt-8 flex justify-center">
             <button
               type="button"
@@ -363,7 +398,7 @@ export function BookingWizard({
             <p className="text-sm font-semibold text-ink">Booking Summary</p>
             <div className="mt-2 space-y-1 text-sm text-muted">
               <p>
-                {selectedService?.name} · {formatGHS(selectedService?.price_ghs)}
+                {selectedService?.name} · {totalSessions} session{totalSessions === 1 ? "" : "s"} · {formatGHS(serviceAmountGhs)}
               </p>
               <p>{selectedBranch?.name}</p>
               <p>
@@ -451,6 +486,9 @@ export function BookingWizard({
               <p className="text-sm font-semibold text-ink">Booking Summary</p>
               {[
                 { label: "Service", value: selectedService?.name },
+                { label: "Sessions", value: String(totalSessions) },
+                { label: "Price per session", value: formatGHS(unitPriceGhs) },
+                { label: "Treatment total", value: formatGHS(serviceAmountGhs) },
                 { label: "Date & Time", value: `${date} at ${time}` },
                 { label: "Patient", value: fullName },
               ].map(({ label, value }) => (

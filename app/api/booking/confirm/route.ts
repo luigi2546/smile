@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
       email,
       notes,
       paymentChoice = "booking_fee",
+      totalSessions = 1,
     } = body;
 
     // Basic validation
@@ -27,6 +28,11 @@ export async function POST(req: NextRequest) {
 
     const selectedPaymentChoice: PaymentChoice =
       paymentChoice === "full" ? "full" : "booking_fee";
+    const sessionCount = Number(totalSessions);
+
+    if (!Number.isInteger(sessionCount) || sessionCount < 1 || sessionCount > 20) {
+      return NextResponse.json({ error: "Choose between 1 and 20 sessions." }, { status: 400 });
+    }
 
     const supabase = createServiceClient();
 
@@ -37,7 +43,12 @@ export async function POST(req: NextRequest) {
       .eq("id", serviceId)
       .single();
 
-    const servicePriceGhs = Number(service?.price_ghs ?? 0);
+    if (!service) {
+      return NextResponse.json({ error: "The selected service is unavailable." }, { status: 400 });
+    }
+
+    const unitPriceGhs = Number(service.price_ghs ?? 0);
+    const servicePriceGhs = unitPriceGhs * sessionCount;
     const expectedAmountGhs =
       selectedPaymentChoice === "full" ? servicePriceGhs : BOOKING_FEE_GHS;
     const expectedAmountPesewas = Math.round(expectedAmountGhs * 100);
@@ -113,6 +124,8 @@ export async function POST(req: NextRequest) {
         appointment_time: time,
         status: "confirmed",
         price_ghs: servicePriceGhs,
+        session_number: 1,
+        total_sessions: sessionCount,
         amount_paid_ghs: expectedAmountGhs,
         payment_ref: reference,
         booking_fee_ghs: selectedPaymentChoice === "full" ? 0 : BOOKING_FEE_GHS,

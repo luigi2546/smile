@@ -42,7 +42,7 @@ export default async function DashboardPage() {
     supabase.from("reminders").select("id, due_date, is_sent").eq("is_sent", false),
     supabase
       .from("subscriptions")
-      .select("id, created_at, amount_paid_ghs, payment_ref, customer:customers(full_name), plan:subscription_plans(name)")
+      .select("id, created_at, amount_paid_ghs, payment_ref, sessions_total, customer:customers(full_name), plan:subscription_plans(name)")
       .gt("amount_paid_ghs", 0)
       .order("created_at", { ascending: false })
       .limit(8),
@@ -86,7 +86,7 @@ export default async function DashboardPage() {
         id: appointment.id,
         type: "session",
         customer: appointment.customer?.full_name ?? "Unknown customer",
-        description: appointment.service?.name ?? "Treatment session",
+        description: `${appointment.service?.name ?? "Treatment"} · ${appointment.total_sessions ?? 1} session${(appointment.total_sessions ?? 1) === 1 ? "" : "s"}`,
         amount: Number(appointment.amount_paid_ghs ?? 0),
         date: appointment.created_at,
       })),
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
       id: subscription.id,
       type: "package",
       customer: subscription.customer?.full_name ?? "Unknown customer",
-      description: subscription.plan?.name ?? "Whitening package",
+      description: `${subscription.plan?.name ?? "Whitening package"} · ${subscription.sessions_total ?? 1} sessions`,
       amount: Number(subscription.amount_paid_ghs ?? 0),
       date: subscription.created_at,
     }))),
@@ -230,7 +230,7 @@ export default async function DashboardPage() {
                 <th className="px-4 py-3 font-semibold sm:px-6">Customer</th>
                 <th className="hidden px-4 py-3 font-semibold md:table-cell sm:px-6">Payment</th>
                 <th className="w-32 px-4 py-3 font-semibold sm:px-6">Amount</th>
-                <th className="w-28 px-4 py-3 font-semibold sm:px-6">Receipt</th>
+                <th className="w-40 px-4 py-3 font-semibold sm:px-6">Receipt</th>
               </tr>
             </thead>
             <tbody>
@@ -240,7 +240,7 @@ export default async function DashboardPage() {
                   <td className="hidden break-words px-4 py-4 text-muted md:table-cell sm:px-6">{payment.description}</td>
                   <td className="px-4 py-4 font-semibold tabular-nums text-ink sm:px-6">{formatGHS(payment.amount)}</td>
                   <td className="px-4 py-4 sm:px-6">
-                    <Button href={`/admin/transactions/${payment.type}/${payment.id}/receipt`} variant="ghost" size="sm">
+                    <Button href={`/admin/transactions/${payment.type}/${payment.id}/receipt`} variant="ghost" size="sm" className="whitespace-nowrap">
                       <Printer className="h-4 w-4" /> Receipt
                     </Button>
                   </td>

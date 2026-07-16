@@ -15,7 +15,7 @@ export default async function BookingSuccessPage({
   const { data: appointment } = searchParams.appointmentId
     ? await supabase
         .from("appointments")
-        .select("id, created_at, status, amount_paid_ghs, customer:customers(full_name, phone), service:services(name), branch:branches(name)")
+        .select("id, created_at, status, amount_paid_ghs, total_sessions, customer:customers(full_name, phone), service:services(name), branch:branches(name)")
         .eq("id", searchParams.appointmentId)
         .maybeSingle()
     : { data: null };
@@ -133,7 +133,7 @@ export default async function BookingSuccessPage({
             receiptNumber={`SC-SES-${payment.id.slice(0, 8).toUpperCase()}`}
             customerName={payment.customer?.full_name ?? "Customer"}
             customerPhone={payment.customer?.phone}
-            description={payment.service?.name ?? "Treatment session"}
+            description={`${payment.service?.name ?? "Treatment"} · ${payment.total_sessions ?? 1} session${payment.total_sessions === 1 ? "" : "s"}`}
             paymentType={paidFull ? "Full treatment payment" : "Booking fee"}
             amount={Number(payment.amount_paid_ghs ?? 0)}
             date={payment.created_at}

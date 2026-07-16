@@ -68,6 +68,7 @@ export async function GET(request: Request) {
       status: sub.status,
       reference: sub.payment_ref ?? "",
       description: sub.plan?.name ?? "Membership payment",
+      sessions: sub.sessions_total ?? 1,
     })),
     ...appointmentTransactions.map((appt) => ({
       type: appt.service?.category === "Membership" ? "Membership" : "Appointment",
@@ -77,18 +78,20 @@ export async function GET(request: Request) {
       status: appt.status,
       reference: appt.payment_ref ?? appt.notes?.match(/(?:transaction|payment)\s+(\S+)/i)?.[1] ?? "",
       description: appt.service?.name ?? "Appointment payment",
+      sessions: appt.total_sessions ?? 1,
     })),
   ]
     .filter((tx) => matchesFilter(tx, q, type, startDate, endDate))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const rows = [
-    ["Type", "Customer", "Phone", "Description", "Amount", "Date", "Status", "Reference"],
+    ["Type", "Customer", "Phone", "Description", "Sessions", "Amount", "Date", "Status", "Reference"],
     ...transactions.map((tx) => [
       tx.type,
       tx.customer?.full_name ?? "",
       tx.customer?.phone ?? "",
       tx.description,
+      tx.sessions,
       tx.amount,
       tx.date,
       tx.status,
