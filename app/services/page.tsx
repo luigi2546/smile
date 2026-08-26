@@ -2,7 +2,6 @@ import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { createServiceClient } from "@/lib/supabase/service";
 import { formatGHS } from "@/lib/utils";
-import { defaultServices } from "@/lib/data/default-data";
 import type { Service } from "@/lib/types";
 import Link from "next/link";
 import { Clock, ArrowRight, Stethoscope, Sparkles, ShieldCheck, Smile } from "lucide-react";
@@ -36,9 +35,7 @@ export default async function ServicesPage() {
     .eq("is_active", true)
     .order("category");
 
-  const activeServices = (services as Service[] | null) ?? [];
-  const displayedServices =
-    activeServices.length > 0 ? activeServices : defaultServices;
+  const displayedServices = (services as Service[] | null) ?? [];
 
   const categories = Array.from(
     new Set(displayedServices.map((s) => s.category))

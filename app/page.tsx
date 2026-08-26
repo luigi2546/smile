@@ -14,12 +14,6 @@ const serviceIcons: Record<string, React.ComponentType<{ className?: string }>> 
   "Smile Makeover": Smile,
 };
 
-const whiteningHighlights = [
-  { label: "Transparent pricing", value: "GHS 60", detail: "per whitening session" },
-  { label: "Session packages", value: "1-10", detail: "sessions booked upfront" },
-  { label: "Treatment tracking", value: "Before & after", detail: "shade and photo records" },
-];
-
 const benefits = [
   {
     title: "Built around whitening",
@@ -99,6 +93,9 @@ const customerReviewCards = [
 export default async function HomePage() {
   const supabase = createServiceClient();
   const { data: services } = await supabase.from("services").select("*").eq("is_active", true).limit(4);
+  
+  const teethWhitening = (services as Service[] | null)?.find((s) => s.name === "Teeth Whitening");
+  const whiteningPrice = teethWhitening ? formatGHS(teethWhitening.price_ghs) : "GHS 0";
 
   return (
     <>
@@ -208,7 +205,7 @@ export default async function HomePage() {
             <div className="grid gap-3 rounded-3xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur md:grid-cols-3">
               {[
                 { value: "5.0", label: "Average experience" },
-                { value: "GHS 60", label: "Clear session price" },
+                { value: whiteningPrice, label: "Clear session price" },
                 { value: "3-step", label: "Booking flow" },
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl bg-white px-5 py-4">
@@ -369,7 +366,7 @@ export default async function HomePage() {
             <div className="grid gap-3 rounded-3xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur md:grid-cols-3">
               {[
                 { value: "5.0", label: "Average experience" },
-                { value: "GHS 60", label: "Clear session price" },
+                { value: whiteningPrice, label: "Clear session price" },
                 { value: "3-step", label: "Booking flow" },
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl bg-white px-5 py-4">

@@ -66,11 +66,11 @@ export function Footer() {
                   Book Appointment
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link href="/admin/login" className="text-white/40 transition hover:text-white hover:underline text-xs">
                   Admin Sign In
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
