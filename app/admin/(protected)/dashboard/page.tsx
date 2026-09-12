@@ -151,7 +151,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Appointments Today" value={String(todaysSessions.length)} delta={pendingAppointments > 0 ? `${pendingAppointments} pending` : undefined} />
+        <StatCard label="Total Appointments" value={String(allAppointments.length)} delta={pendingAppointments > 0 ? `${pendingAppointments} pending` : undefined} />
         <StatCard label="Revenue This Month" value={formatGHS(revenueThisMonth)} />
         <StatCard label="New Customers This Month" value={String(newCustomersThisMonth)} />
         <StatCard label="Completed This Month" value={String(completedThisMonth)} />
