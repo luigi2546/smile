@@ -120,7 +120,7 @@ export default async function HomePage() {
             </p>
 
             <div className="mt-10 flex flex-wrap gap-3">
-              <Button href="/book" variant="secondary" size="lg">
+              <Button href="/book/simple" variant="secondary" size="lg">
                 Book appointment
               </Button>
               <Button href="/services" variant="ghost" size="lg" className="border-white/25 text-ink hover:bg-white/10 hover:text-white">
@@ -328,6 +328,7 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Membership section temporarily hidden from the public site.
       <section className="bg-teal-darker py-20 text-white">
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
@@ -337,7 +338,7 @@ export default async function HomePage() {
               <p className="mt-5 max-w-xl text-sm text-white/90">
                 Sign up for membership to get priority booking, whitening savings, and regular follow-up reminders.
               </p>
-              <Button href="/book" variant="secondary" size="lg" className="mt-8">
+              <Button href="/book/simple" variant="secondary" size="lg" className="mt-8">
                 Join Smile Club
               </Button>
             </div>
@@ -350,7 +351,7 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="overflow-hidden bg-cream py-20">
         <div className="mx-auto max-w-6xl px-6">

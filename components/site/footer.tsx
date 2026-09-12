@@ -46,11 +46,7 @@ export function Footer() {
                   Our Location
                 </Link>
               </li>
-              <li>
-                <Link href="/membership" className="text-white/70 transition hover:text-white hover:underline">
-                  Membership (Smile Club)
-                </Link>
-              </li>
+              {/* Membership is temporarily hidden from the public site. */}
               <li>
                 <Link href="/about" className="text-white/70 transition hover:text-white hover:underline">
                   About Us
@@ -62,7 +58,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/book" className="text-white/70 transition hover:text-white hover:underline font-medium">
+                <Link href="/book/simple" className="text-white/70 transition hover:text-white hover:underline font-medium">
                   Book Appointment
                 </Link>
               </li>

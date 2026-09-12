@@ -45,7 +45,7 @@ export default async function BranchesPage() {
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
-                  href="/book"
+                  href="/book/simple"
                   className="inline-flex items-center gap-2 rounded-2xl bg-amber-400 px-6 py-3 text-sm font-bold text-[#000a54] shadow-lg shadow-amber-400/30 transition hover:bg-amber-300"
                 >
                   Book at any branch <ArrowRight className="h-4 w-4" />
@@ -116,7 +116,7 @@ export default async function BranchesPage() {
 
                 <div className="mt-6 border-t border-gray-50 pt-5">
                   <Link
-                    href={`/book?branch=${b.id}`}
+                    href="/book/simple"
                     className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#000a54] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-teal-700"
                   >
                     Book at {b.name} <ArrowRight className="h-4 w-4" />

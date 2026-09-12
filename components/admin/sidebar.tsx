@@ -22,7 +22,7 @@ const nav = [
   { href: "/admin/appointments", label: "Appointments", icon: CalendarCheck },
   { href: "/admin/customers", label: "Customers (CRM)", icon: Users },
   { href: "/admin/services", label: "Treatments", icon: Stethoscope },
-  { href: "/admin/subscriptions", label: "Whitening Packages", icon: CreditCard },
+  // { href: "/admin/subscriptions", label: "Whitening Packages", icon: CreditCard },
   { href: "/admin/transactions", label: "Transactions", icon: DollarSign },
 ];
 

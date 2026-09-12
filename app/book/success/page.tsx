@@ -111,7 +111,7 @@ export default async function BookingSuccessPage({
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/book"
+                href="/book/simple"
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#000a54] px-5 py-3 text-sm font-bold text-white transition hover:bg-teal-700"
               >
                 <CalendarCheck className="h-4 w-4" /> Book another

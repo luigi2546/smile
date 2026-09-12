@@ -50,10 +50,7 @@ const FAQS = [
     q: "What are your opening hours?",
     a: "All branches are open Monday to Saturday, 8:00 AM – 6:00 PM. Emergency appointments may be available outside these hours — call us to confirm.",
   },
-  {
-    q: "How does the Smile Club membership work?",
-    a: "Smile Club is a monthly subscription giving you priority bookings, discounts, and regular cleanings. Contact us or visit the Membership page to learn more.",
-  },
+  // Membership FAQ temporarily hidden from the public site.
   {
     q: "Do you accept walk-ins?",
     a: "We welcome walk-ins where capacity allows, but we strongly recommend booking online to avoid waiting.",
@@ -192,7 +189,7 @@ export default async function ContactPage() {
                 <select className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-slate-800 focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600" name="subject">
                   <option>General Enquiry</option>
                   <option>Appointment Question</option>
-                  <option>Membership / Smile Club</option>
+                  {/* Membership contact option temporarily hidden. */}
                   <option>Billing / Payment</option>
                   <option>Feedback or Complaint</option>
                   <option>Corporate / Group Enquiry</option>
@@ -261,7 +258,7 @@ export default async function ContactPage() {
                       </p>
                     </div>
                     <Link
-                      href={`/book?branch=${b.id}`}
+                      href="/book/simple"
                       className="shrink-0 rounded-xl bg-[#000a54] px-3 py-2 text-xs font-bold text-white transition hover:bg-teal-700"
                     >
                       Book

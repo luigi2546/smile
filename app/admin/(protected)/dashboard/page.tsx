@@ -97,14 +97,14 @@ export default async function DashboardPage() {
         amount: Number(appointment.amount_paid_ghs ?? 0),
         date: appointment.created_at,
       })),
-    ...(((subscriptions as any[]) ?? []).map((subscription) => ({
+    /* ...(((subscriptions as any[]) ?? []).map((subscription) => ({
       id: subscription.id,
       type: "package",
       customer: subscription.customer?.full_name ?? "Unknown customer",
       description: `${subscription.plan?.name ?? "Whitening package"} · ${subscription.sessions_total ?? 1} sessions`,
       amount: Number(subscription.amount_paid_ghs ?? 0),
       date: subscription.created_at,
-    }))),
+    }))), */
   ]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 6);

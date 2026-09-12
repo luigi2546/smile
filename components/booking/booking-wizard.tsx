@@ -86,9 +86,24 @@ export function BookingWizard({
   }, [branchId, branches]);
 
   const timeSlots = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"];
+  const calendarDays = useMemo(() => {
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
+
+    return Array.from({ length: 14 }, (_, index) => {
+      const day = new Date(today);
+      day.setDate(today.getDate() + index);
+      return {
+        key: day.toISOString().slice(0, 10),
+        weekday: day.toLocaleDateString("en-GB", { weekday: "short" }),
+        dayNumber: day.toLocaleDateString("en-GB", { day: "numeric" }),
+        month: day.toLocaleDateString("en-GB", { month: "short" }),
+        isToday: index === 0,
+      };
+    }).filter((day) => new Date(`${day.key}T12:00:00`).getDay() !== 0);
+  }, []);
   const unitPriceGhs = selectedService?.price_ghs ?? 0;
   const serviceAmountGhs = unitPriceGhs * totalSessions;
-  const totalDurationMinutes = (selectedService?.duration_minutes ?? 0) * totalSessions;
   const amountToPayGhs = paymentChoice === "full" ? serviceAmountGhs : BOOKING_FEE_GHS;
   const balanceDueGhs = paymentChoice === "full" ? 0 : Math.max(serviceAmountGhs - BOOKING_FEE_GHS, 0);
 
@@ -252,9 +267,7 @@ export function BookingWizard({
                   </div>
                   <div>
                     <p className="font-semibold text-ink">{s.name}</p>
-                    <p className="mt-0.5 text-sm text-muted">
-                      {formatGHS(s.price_ghs)} · {s.duration_minutes} min
-                    </p>
+                    <p className="mt-0.5 text-sm text-muted">{formatGHS(s.price_ghs)}</p>
                   </div>
                 </button>
               );
@@ -265,7 +278,7 @@ export function BookingWizard({
               <div>
                 <Label htmlFor="totalSessions">Number of sessions</Label>
                 <p className="mt-1 text-xs text-muted">
-                  Each session costs {formatGHS(unitPriceGhs)} and lasts {selectedService?.duration_minutes ?? 0} minutes.
+                  Each session costs {formatGHS(unitPriceGhs)}.
                 </p>
               </div>
               <div className="flex w-full items-center justify-between gap-2 sm:w-auto">
@@ -307,7 +320,7 @@ export function BookingWizard({
             </div>
             <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4 text-sm">
               <span className="text-muted">
-                {totalSessions} session{totalSessions === 1 ? "" : "s"} · {totalDurationMinutes} min total
+                {totalSessions} session{totalSessions === 1 ? "" : "s"}
               </span>
               <span className="font-bold text-teal-darker">{formatGHS(serviceAmountGhs)}</span>
             </div>
@@ -363,9 +376,37 @@ export function BookingWizard({
                 </span>
                 <div>
                   <Label htmlFor="date">Appointment date</Label>
-                  <p id="date-help" className="text-xs text-muted">Tap the date field to open your calendar.</p>
+                  <p id="date-help" className="text-xs text-muted">Choose a day, then pick a time below.</p>
                 </div>
               </div>
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
+                {calendarDays.slice(0, 7).map((day) => {
+                  const active = date === day.key;
+                  return (
+                    <button
+                      key={day.key}
+                      type="button"
+                      onClick={() => {
+                        setDate(day.key);
+                        setTime("");
+                      }}
+                      aria-pressed={active}
+                      className={`rounded-xl border px-2 py-3 text-center transition ${
+                        active
+                          ? "border-teal-darker bg-teal-darker text-white shadow-sm"
+                          : "border-slate-200 bg-white text-ink hover:border-teal hover:bg-white"
+                      }`}
+                    >
+                      <span className="block text-[11px] font-semibold uppercase tracking-wide opacity-70">
+                        {day.isToday ? "Today" : day.weekday}
+                      </span>
+                      <span className="mt-1 block text-lg font-bold leading-none">{day.dayNumber}</span>
+                      <span className="mt-1 block text-[11px] opacity-70">{day.month}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="my-3 text-center text-xs font-semibold uppercase tracking-wide text-muted">Or choose another date</p>
               <Input
                 id="date"
                 type="date"
@@ -392,20 +433,20 @@ export function BookingWizard({
             </div>
 
             <div>
-              <Label>Time</Label>
-              <div className="grid grid-cols-4 gap-2">
-                {timeSlots.map((t) => (
+              <Label>Available times</Label>
+              <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {timeSlots.map((t, index) => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => setTime(t)}
-                    className={`rounded-lg border py-2 text-sm transition-colors ${
+                    className={`rounded-xl border py-3 text-sm transition-colors ${
                       time === t
                         ? "border-teal-darker bg-teal-darker text-white"
-                        : "border-teal-darker/10 text-muted hover:border-teal-darker/30"
+                        : "border-teal-darker/10 bg-white text-muted hover:border-teal-darker/30"
                     }`}
                   >
-                    {t}
+                    {index < 4 ? `${t} · Morning` : `${t} · Afternoon`}
                   </button>
                 ))}
               </div>

@@ -4,6 +4,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { formatGHS } from "@/lib/utils";
 import type { SubscriptionPlan } from "@/lib/types";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   CheckCircle2,
   Sparkles,
@@ -80,6 +81,8 @@ const HIGHLIGHTS = [
 
 /* ── Page ───────────────────────────────────────────────── */
 export default async function MembershipPage() {
+  redirect("/");
+
   const supabase = createServiceClient();
   const { data: plans } = await supabase
     .from("subscription_plans")

@@ -7,6 +7,7 @@ import type { SubscriptionPlan } from "@/lib/types";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { PaystackCheckoutClient } from "@/components/membership/paystack-checkout-client";
 
 type Props = {
@@ -16,6 +17,8 @@ type Props = {
 };
 
 export default async function MembershipCheckoutPage({ searchParams }: Props) {
+  redirect("/");
+
   const planId = searchParams.planId;
   if (!planId) {
     return notFound();
@@ -136,7 +139,7 @@ export default async function MembershipCheckoutPage({ searchParams }: Props) {
               </p>
               <div className="mt-8 grid gap-8 lg:grid-cols-[1.3fr_0.9fr]">
                 <div className="rounded-[1.5rem] border border-slate-200 bg-white p-8 shadow-sm">
-                  <PaystackCheckoutClient plan={subscriptionPlan} publicKey={publicKey} />
+                  <PaystackCheckoutClient plan={subscriptionPlan} publicKey={publicKey ?? ""} />
                 </div>
                 <div className="space-y-4 rounded-[1.5rem] border border-slate-200 bg-slate-100 p-6">
                   <div>

@@ -61,6 +61,272 @@ section {
   position: relative;
 }
 
+.team-avatar {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 10rem;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background: linear-gradient(145deg, #eaf8f7, #b9e2df);
+  box-shadow: inset 0 -1.5rem 2rem rgba(0, 10, 84, 0.08);
+}
+
+.team-avatar__halo,
+.team-avatar__body,
+.team-avatar__neck,
+.team-avatar__face,
+.team-avatar__hair,
+.team-avatar__coat,
+.team-avatar__ear,
+.team-avatar__eye,
+.team-avatar__smile {
+  position: absolute;
+  display: block;
+}
+
+.team-avatar__halo {
+  top: 1rem;
+  left: 50%;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  transform: translateX(-50%);
+  filter: blur(0.2px);
+}
+
+.team-avatar__body {
+  bottom: -2.8rem;
+  left: 50%;
+  width: 9rem;
+  height: 7rem;
+  border-radius: 50% 50% 0 0;
+  background: #0b6570;
+  transform: translateX(-50%);
+  box-shadow: inset -0.8rem -0.3rem 0 rgba(0, 10, 84, 0.15);
+}
+
+.team-avatar__neck {
+  z-index: 2;
+  top: 6.15rem;
+  left: 50%;
+  width: 1.7rem;
+  height: 2rem;
+  background: var(--avatar-skin, #8d552f);
+  transform: translateX(-50%);
+}
+
+.team-avatar__face {
+  z-index: 3;
+  top: 2.1rem;
+  left: 50%;
+  width: 4.9rem;
+  height: 5.2rem;
+  border-radius: 46% 46% 48% 48%;
+  background: var(--avatar-skin, #8d552f);
+  transform: translateX(-50%);
+  box-shadow: inset -0.45rem -0.3rem 0 rgba(75, 35, 18, 0.16), inset 0.35rem 0.2rem 0 rgba(255, 255, 255, 0.12);
+}
+
+.team-avatar__hair {
+  z-index: 4;
+  top: 1.5rem;
+  left: 50%;
+  width: 5.2rem;
+  height: 2.7rem;
+  border-radius: 52% 52% 38% 38%;
+  background: var(--avatar-hair, #241713);
+  transform: translateX(-50%) rotate(-3deg);
+  box-shadow: inset -0.5rem -0.3rem 0 rgba(0, 0, 0, 0.22);
+}
+
+.team-avatar__coat {
+  z-index: 4;
+  bottom: -1rem;
+  left: 50%;
+  width: 5.8rem;
+  height: 4.5rem;
+  border-radius: 1rem 1rem 0 0;
+  border: 0.4rem solid #fff;
+  border-bottom: 0;
+  background: #f8fbfb;
+  transform: translateX(-50%);
+}
+
+.team-avatar--female .team-avatar__hair {
+  top: 1.3rem;
+  width: 5.7rem;
+  height: 3.5rem;
+  border-radius: 48% 48% 42% 42%;
+}
+
+.team-avatar--female .team-avatar__hair::before,
+.team-avatar--female .team-avatar__hair::after {
+  content: "";
+  position: absolute;
+  top: 1.3rem;
+  width: 1.15rem;
+  height: 3.4rem;
+  border-radius: 45%;
+  background: var(--avatar-hair, #241713);
+}
+
+.team-avatar--female .team-avatar__hair::before {
+  left: -0.35rem;
+  transform: rotate(7deg);
+}
+
+.team-avatar--female .team-avatar__hair::after {
+  right: -0.35rem;
+  transform: rotate(-7deg);
+}
+
+.team-avatar--male .team-avatar__hair {
+  top: 1.45rem;
+  width: 5.15rem;
+  height: 2.35rem;
+  border-radius: 52% 52% 34% 34%;
+}
+
+.team-profile {
+  position: relative;
+  isolation: isolate;
+  width: 9rem;
+  height: 9rem;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 0.3rem solid #000a54;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.9) 0 2.9rem, transparent 3rem), linear-gradient(145deg, #e8f4f1, #b9dcd8);
+  box-shadow: inset 0 -2rem 2rem rgba(0, 10, 84, 0.08);
+}
+
+.team-profile--male {
+  background: radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.9) 0 2.9rem, transparent 3rem), linear-gradient(145deg, #e7eef8, #c5d4eb);
+}
+
+.team-profile--female {
+  background: radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.9) 0 2.9rem, transparent 3rem), linear-gradient(145deg, #e8f4f1, #b9dcd8);
+}
+
+.team-profile::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  bottom: -3.4rem;
+  left: 50%;
+  width: 8rem;
+  height: 6rem;
+  border: 0.4rem solid #fff;
+  border-bottom: 0;
+  border-radius: 50% 50% 0 0;
+  background: #fff;
+  transform: translateX(-50%);
+}
+
+.team-profile__monogram {
+  position: absolute;
+  z-index: 3;
+  top: 3rem;
+  left: 50%;
+  color: #000a54;
+  font-family: Playfair Display, Georgia, serif;
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  transform: translateX(-50%);
+}
+
+.team-profile__credential {
+  position: absolute;
+  z-index: 4;
+  right: 0.7rem;
+  bottom: 0.7rem;
+  border-radius: 0.4rem;
+  background: #000a54;
+  padding: 0.25rem 0.45rem;
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.team-profile--photo {
+  background: #fff;
+}
+
+.team-profile--photo.team-profile--male {
+  background: #fff;
+}
+
+.team-profile--photo::after {
+  display: none;
+}
+
+.team-profile__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 24%;
+  transform: scale(1.02);
+  filter: saturate(0.92) contrast(1.03);
+  transition: transform 300ms ease;
+}
+
+.team-profile__image--aa {
+  object-position: center 18%;
+}
+
+.team-profile__image--em {
+  object-position: center center;
+}
+
+.group:hover .team-profile__image {
+  transform: scale(1.02);
+}
+
+.team-avatar__ear {
+  top: 2rem;
+  width: 0.55rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--avatar-skin, #8d552f);
+}
+
+.team-avatar__ear--left { left: -0.35rem; }
+.team-avatar__ear--right { right: -0.35rem; }
+
+.team-avatar__eye {
+  top: 2.35rem;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: #241713;
+}
+
+.team-avatar__eye--left { left: 1.55rem; }
+.team-avatar__eye--right { right: 1.55rem; }
+
+.team-avatar__smile {
+  bottom: 1.15rem;
+  left: 50%;
+  width: 1.15rem;
+  height: 0.45rem;
+  border-bottom: 0.14rem solid #632b25;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.team-avatar--ama { --avatar-skin: #8d552f; --avatar-hair: #19100f; }
+.team-avatar--kwame { --avatar-skin: #6f3f25; --avatar-hair: #241713; background: linear-gradient(145deg, #fff3dc, #f1cf9c); }
+.team-avatar--efua { --avatar-skin: #a8643d; --avatar-hair: #271612; background: linear-gradient(145deg, #fce8f0, #ecc3d2); }
+.team-avatar--kofi { --avatar-skin: #754328; --avatar-hair: #171313; background: linear-gradient(145deg, #e9efff, #c8d5f4); }
+
 .home-hero {
   isolation: isolate;
   background:

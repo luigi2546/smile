@@ -36,7 +36,7 @@ function LoginForm() {
               Welcome back to Smile Center GH.
             </h1>
             <p className="mt-6 text-base leading-7 text-slate-200 sm:text-lg">
-              Manage appointments, customers, services, and subscriptions from one elegant staff portal.
+              Manage appointments, customers, and treatments from one elegant staff portal.
             </p>
 
             <div className="mt-10 grid gap-4 text-sm sm:grid-cols-2">

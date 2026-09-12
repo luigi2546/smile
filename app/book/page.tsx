@@ -2,7 +2,7 @@ import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { createServiceClient } from "@/lib/supabase/service";
 import { BookingWizard } from "@/components/booking/booking-wizard";
-import { defaultBranches } from "@/lib/data/default-data";
+import { defaultBranches, defaultServices } from "@/lib/data/default-data";
 import type { Branch, Service } from "@/lib/types";
 import { CalendarCheck, ShieldCheck, Clock } from "lucide-react";
 
@@ -24,6 +24,9 @@ export default async function BookPage({
   ]);
 
   const activeBranches = (branches as Branch[] | null) ?? [];
+  const activeServices = (services as Service[] | null)?.length
+    ? (services as Service[])
+    : defaultServices;
 
   return (
     <>
@@ -67,7 +70,7 @@ export default async function BookPage({
         <div className="mx-auto max-w-2xl">
           <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-xl shadow-slate-900/5">
             <BookingWizard
-              services={(services as Service[] | null) ?? []}
+              services={activeServices}
               branches={activeBranches.length > 0 ? activeBranches : defaultBranches}
               defaultServiceId={searchParams.service}
             />

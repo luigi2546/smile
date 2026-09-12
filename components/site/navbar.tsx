@@ -10,7 +10,7 @@ import { Menu, X } from "lucide-react";
 const links = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
-  { href: "/membership", label: "Membership" },
+  // { href: "/membership", label: "Membership" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
@@ -98,11 +98,11 @@ export function Navbar() {
           {/* CTA */}
           <div className="hidden lg:block">
             <Button
-              href="/book"
+              href="/book/simple"
               size="sm"
               variant="secondary"
-              onMouseEnter={() => warmRoute("/book")}
-              onFocus={() => warmRoute("/book")}
+              onMouseEnter={() => warmRoute("/book/simple")}
+              onFocus={() => warmRoute("/book/simple")}
             >
               Book Appointment
             </Button>
@@ -141,12 +141,12 @@ export function Navbar() {
                 </Link>
               ))}
               <Button
-                href="/book"
+                href="/book/simple"
                 variant="secondary"
                 className="mt-2 min-h-12 w-full"
                 onClick={() => setMobileMenuOpen(false)}
-                onMouseEnter={() => warmRoute("/book")}
-                onFocus={() => warmRoute("/book")}
+                onMouseEnter={() => warmRoute("/book/simple")}
+                onFocus={() => warmRoute("/book/simple")}
               >
                 Book Appointment
               </Button>

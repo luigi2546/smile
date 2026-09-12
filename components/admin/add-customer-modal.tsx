@@ -83,6 +83,7 @@ export function AddCustomerModal({ branches }: { branches: BranchOption[] }) {
             </div>
           </div>
 
+          {/* Membership enrollment temporarily hidden from the admin UI.
           <div className="flex items-center gap-2 py-1">
             <input
               type="checkbox"
@@ -93,7 +94,7 @@ export function AddCustomerModal({ branches }: { branches: BranchOption[] }) {
             <Label htmlFor="isMember" className="mb-0 font-medium">
               Enroll in Smile Club (Membership)
             </Label>
-          </div>
+          </div> */}
 
           <div>
             <Label htmlFor="notes">Internal Notes & Preferences</Label>

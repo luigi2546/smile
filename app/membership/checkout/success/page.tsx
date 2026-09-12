@@ -5,7 +5,7 @@ import { CheckCircle2, ArrowRight, ShieldCheck } from "lucide-react";
 import { formatGHS } from "@/lib/utils";
 import { createServiceClient } from "@/lib/supabase/service";
 import type { SubscriptionPlan } from "@/lib/types";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PaymentReceipt } from "@/components/receipt/payment-receipt";
 
 type Props = {
@@ -16,6 +16,8 @@ type Props = {
 };
 
 export default async function CheckoutSuccessPage({ searchParams }: Props) {
+  redirect("/");
+
   const subscriptionId = searchParams.subscriptionId;
   const planId = searchParams.planId;
 

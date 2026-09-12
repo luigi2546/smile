@@ -4,7 +4,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { formatGHS } from "@/lib/utils";
 import type { Service } from "@/lib/types";
 import Link from "next/link";
-import { Clock, ArrowRight, Stethoscope, Sparkles, ShieldCheck, Smile } from "lucide-react";
+import { ArrowRight, Stethoscope, Sparkles, ShieldCheck, Smile } from "lucide-react";
 
 const CATEGORY_CONFIG: Record<
   string,
@@ -76,7 +76,7 @@ export default async function ServicesPage() {
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
-                  href="/book"
+                  href="/book/simple"
                   className="inline-flex items-center gap-2 rounded-2xl bg-amber-400 px-6 py-3 text-sm font-bold text-[#000a54] shadow-lg shadow-amber-400/30 transition hover:bg-amber-300"
                 >
                   Book appointment <ArrowRight className="h-4 w-4" />
@@ -176,19 +176,13 @@ export default async function ServicesPage() {
                         </p>
                       )}
 
-                      {/* Price + Duration + Book */}
+                      {/* Price + Book */}
                       <div className="mt-6 flex items-center justify-between gap-4 border-t border-gray-50 pt-4">
-                        <div>
-                          <p className="font-serif text-xl font-bold text-[#000a54]">
-                            {formatGHS(service.price_ghs)}
-                          </p>
-                          <p className="flex items-center gap-1 text-xs text-slate-400">
-                            <Clock className="h-3 w-3" />
-                            {service.duration_minutes} min
-                          </p>
-                        </div>
+                        <p className="font-serif text-xl font-bold text-[#000a54]">
+                          {formatGHS(service.price_ghs)}
+                        </p>
                         <Link
-                          href={`/book?service=${service.id}`}
+                          href="/book/simple"
                           className="inline-flex items-center gap-1.5 rounded-2xl bg-[#000a54] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-teal-700"
                         >
                           Book <ArrowRight className="h-3.5 w-3.5" />

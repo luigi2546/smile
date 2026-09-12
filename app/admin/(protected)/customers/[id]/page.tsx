@@ -87,19 +87,19 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
+          {/* Membership status and controls temporarily hidden.
           {c.is_member ? (
             <Badge tone="gold">Smile Club Member</Badge>
           ) : (
             <Badge tone="neutral">Regular Customer</Badge>
           )}
-          {/* Membership toggle */}
           <form action={toggleMembership}>
             <input type="hidden" name="id" value={c.id} />
             <input type="hidden" name="is_member" value={String(c.is_member)} />
             <Button type="submit" size="sm" variant={c.is_member ? "ghost" : "secondary"}>
               {c.is_member ? "Remove from Smile Club" : "Add to Smile Club"}
             </Button>
-          </form>
+          </form> */}
         </div>
       </div>
 
@@ -212,7 +212,7 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
             </Card>
           </div>
 
-          {/* Subscription section */}
+          {/* Subscription section temporarily hidden.
           <div>
             <h2 className="font-serif text-lg font-bold text-ink">Whitening Package</h2>
             <Card className="mt-3 p-5">
@@ -259,7 +259,7 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
                 </div>
               )}
             </Card>
-          </div>
+          </div> */}
 
           {/* Reminders section */}
           <div>

@@ -76,11 +76,7 @@ export default async function CustomersPage({
                 </td>
                 <td className="px-5 py-3.5 text-muted">{c.phone}</td>
                 <td className="px-5 py-3.5">
-                  {c.is_member ? (
-                    <Badge tone="gold">Smile Club</Badge>
-                  ) : (
-                    <Badge tone="neutral">Regular</Badge>
-                  )}
+                  <span className="text-muted">Customer</span>
                 </td>
                 <td className="px-5 py-3.5">
                   {c.referred_by_customer_id ? (

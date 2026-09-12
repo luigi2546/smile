@@ -38,7 +38,7 @@ const MILESTONES = [
   { year: "2015", title: "Founded", desc: "Opened our first clinic in East Legon with a team of 4." },
   { year: "2018", title: "Expansion", desc: "Grew to 3 branches, introducing cosmetic and pediatric services." },
   { year: "2021", title: "Digital Booking", desc: "Launched online appointment booking, reducing wait times by 60%." },
-  { year: "2024", title: "Smile Club", desc: "Introduced monthly membership plans, making dental care accessible to more families." },
+  // { year: "2024", title: "Smile Club", desc: "Introduced monthly membership plans, making dental care accessible to more families." },
 ];
 
 const STATS = [
@@ -49,10 +49,10 @@ const STATS = [
 ];
 
 const TEAM = [
-  { name: "Dr. Ama Asante", role: "Founder & Chief Dental Officer", specialty: "Cosmetic Dentistry" },
-  { name: "Dr. Kwame Boateng", role: "Senior Dentist", specialty: "Oral Surgery & Implants" },
-  { name: "Dr. Efua Mensah", role: "Pediatric Specialist", specialty: "Children's Dentistry" },
-  { name: "Dr. Kofi Darko", role: "Branch Director — Tema", specialty: "Preventive & Corporate" },
+  { name: "Dr. Ama Asante", role: "Founder & Chief Dental Officer", specialty: "Cosmetic Dentistry", avatar: "AA", gender: "female", image: "/ama.jpg" },
+  { name: "Dr. Kwame Boateng", role: "Senior Dentist", specialty: "Oral Surgery & Implants", avatar: "KB", gender: "male", image: "/mark.avif" },
+  { name: "Dr. Efua Mensah", role: "Pediatric Specialist", specialty: "Children's Dentistry", avatar: "EM", gender: "female", image: "/olivier.jpg" },
+  { name: "Dr. Kofi Darko", role: "Branch Director — Tema", specialty: "Preventive & Corporate", avatar: "KD", gender: "male", image: "/kofi.jpg" },
 ];
 
 export default function AboutPage() {
@@ -82,7 +82,7 @@ export default function AboutPage() {
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
-                  href="/book"
+                  href="/book/simple"
                   className="inline-flex items-center gap-2 rounded-2xl bg-amber-400 px-6 py-3 text-sm font-bold text-[#000a54] shadow-lg shadow-amber-400/30 transition hover:bg-amber-300"
                 >
                   Book a visit <ArrowRight className="h-4 w-4" />
@@ -133,7 +133,7 @@ export default function AboutPage() {
                   {[
                     "Transparent, upfront pricing — no surprises",
                     "Online booking with instant confirmation",
-                    "Smile Club membership for ongoing care",
+                    // "Smile Club membership for ongoing care",
                     "Multilingual staff speaking Twi, Ga & Ewe",
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-3 text-sm text-slate-600">
@@ -198,20 +198,23 @@ export default function AboutPage() {
             </h2>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {TEAM.map((member, i) => {
-              const initials = member.name
-                .split(" ")
-                .filter((_, idx) => idx > 0)
-                .map((n) => n[0])
-                .join("");
+            {TEAM.map((member) => {
               return (
                 <div
                   key={member.name}
                   className="group rounded-3xl border border-gray-100 bg-white p-7 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                 >
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[#000a54] text-xl font-bold text-white">
-                    {initials}
-                  </div>
+                  {member.image ? (
+                    <div className={`team-profile team-profile--photo team-profile--${member.gender}`}>
+                      <img src={member.image} alt={`${member.name}, professional doctor portrait`} className={`team-profile__image team-profile__image--${member.avatar.toLowerCase()}`} />
+                      <span className="team-profile__credential">DDS</span>
+                    </div>
+                  ) : (
+                    <div className={`team-profile team-profile--${member.gender}`} role="img" aria-label={`${member.name}, ${member.gender} doctor profile`}>
+                      <span className="team-profile__monogram">{member.avatar}</span>
+                      <span className="team-profile__credential">DDS</span>
+                    </div>
+                  )}
                   <h3 className="mt-4 font-serif text-base font-bold text-[#000a54]">
                     {member.name}
                   </h3>
@@ -233,7 +236,7 @@ export default function AboutPage() {
           Book your first appointment in under 2 minutes.
         </p>
         <Link
-          href="/book"
+          href="/book/simple"
           className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-amber-400 px-8 py-4 text-sm font-bold text-[#000a54] shadow-lg shadow-amber-400/30 transition hover:bg-amber-300"
         >
           Book an appointment <ArrowRight className="h-4 w-4" />

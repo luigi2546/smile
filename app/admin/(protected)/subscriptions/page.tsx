@@ -1,8 +1,11 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import { SubscriptionsClient } from "@/components/admin/subscriptions-client";
 import { CreditCard } from "lucide-react";
+import { redirect } from "next/navigation";
 
 export default async function SubscriptionsPage() {
+  redirect("/admin/dashboard");
+
   const supabase = createServiceClient();
 
   const [{ data: plans }, { data: subscriptions }, { data: customers }] =
