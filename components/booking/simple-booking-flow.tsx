@@ -50,9 +50,6 @@ export function SimpleBookingFlow({ services, branches }: { services: Service[];
         <p className="mt-3 text-sm leading-6 text-muted">
           Your booking for {selectedDay?.weekday} {selectedDay?.date} {selectedDay?.month} at {time} has been received. Our team will contact you to confirm it.
         </p>
-          <Button type="button" variant="ghost" className="mt-6" onClick={() => setSubmitted(false)}>
-          Edit booking
-        </Button>
       </div>
     );
   }
